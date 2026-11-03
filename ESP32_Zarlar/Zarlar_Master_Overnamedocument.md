@@ -1,6 +1,11 @@
 # Zarlar Thuisautomatisering — Master Overnamedocument
 **ESP32-C6 · Arduino IDE · Google Sheets · Node.js · Matter (op RPi) · Tailscale**
-*Filip Delannoy — Zarlardinge (BE) — bijgewerkt 1 november 2026*
+*Filip Delannoy — Zarlardinge (BE) — bijgewerkt 3 november 2026*
+
+> **Aanvulling 3 november 2026:**
+> - **Geen enkele ESP32 heeft nog Matter.** ROOM v3.0/v3.1 (room80) en **ECO v2.0** zonder Matter; testwoning "Matter Home" verwijderd. ECO in Apple Home via de RPi: `server.js` v2.11 + plugin v0.8, toestel "ECO-boiler" (Portal Plan §16.13).
+> - Heap na het weghalen van Matter: HVAC 239–251 KB, room80 247 KB, ECO 243 KB grootste blok (was ~30 KB).
+> - **Optimalisatieplan** voor alle controllers: §17. Volledige update van §4–§8 volgt na de 48 u-tests van ROOM v3.1 en ECO v2.0 (5 nov).
 
 > **Aanvulling 1 november 2026:**
 > - **HVAC v2.0 zonder Matter** (OTA geflasht): heap runtime 15 % / 30 KB → **68 % / 247 KB**. Ventilatie aangepast aan de Begetube 350 R + AnaBoX v2.0: 0,2-10 V = 0-100 %, **onder 0,2 V volle kracht**; laagste stand 0,3 V, 5 kHz, correctie voor de AnaBoX-kromme (§4.4, §4.5, `ESP32-HVAC/README.md` §5.2, §6).
@@ -70,12 +75,12 @@ Elke controller publiceert enkel zijn `/json` endpoint — het Dashboard doet de
 | Controller | Naam | IP | MAC | Board | Versie | Status |
 |---|---|---|---|---|---|---|
 | **HVAC** | ESP32_HVAC | 192.168.0.70 | 58:8C:81:32:2B:90 | 32-pin clone | v2.0 | 🧪 Testopstelling (kringen met testinstellingen, alle op room80) · zonder Matter |
-| **ECO Boiler** | ESP32_ECO Boiler | 192.168.0.71 | 58:8C:81:32:2B:D4 | 32-pin clone | v1.23 | ✅ Productie stabiel |
+| **ECO Boiler** | ESP32_ECO Boiler | 192.168.0.71 | 58:8C:81:32:2B:D4 | 32-pin clone | v2.0 | ✅ Productie · zonder Matter (3 nov, 48 u-test loopt) |
 | **Smart Energy** | ESP32_C6_ENERGY | 192.168.0.73 | — | 32-pin clone | v1.29 | ✅ Actief, incl. Tesla bridge (sep 2026) |
 | **Tesla-proxy** | tesla-key-esp32 | via NVS `t1_host` | — | ESP32-C6 30-pin P4 (4 MB), apart board, niet op het Zarlar shield | — | ✅ BLE-proxy naar Tesla1 (§6.10) |
-| **ROOM / Eetplaats** | ESP32_EETPLAATS | 192.168.0.80 | 58:8C:81:32:2F:48 | 32-pin clone | v2.24 | ✅ Matter (→ v3.0 zonder Matter, §7.9) |
-| **Zarlar Dashboard** | ESP32_ZARLAR | 192.168.0.60 | A8:42:E3:4B:FA:BC | 32-pin DevKitM-1 | v6.0 | ✅ Matrix 16×16 · zonder Matter (v6.0 nog te flashen) |
-| **RPi Portal** | zarlar-rpi | 192.168.0.50 | — | Raspberry Pi 3B+ | server.js v2.1 | ✅ Actief (Tailscale) |
+| **ROOM / Eetplaats** | ESP32_EETPLAATS | 192.168.0.80 | 58:8C:81:32:2F:48 | 32-pin clone | v3.1 | ✅ Zonder Matter (v3.0), landingspagina (v3.1, 48 u-test loopt) |
+| **Zarlar Dashboard** | ESP32_ZARLAR | 192.168.0.60 | A8:42:E3:4B:FA:BC | 32-pin DevKitM-1 | v6.3 | ✅ Matrix 16×16 · zonder Matter · OTA |
+| **RPi Portal** | zarlar-rpi | 192.168.0.50 | — | Raspberry Pi 3B+ | server.js v2.11 | ✅ Actief (Tailscale) · Matter-bridge plugin v0.8 |
 
 ⚠️ **MAC-wissel HVAC:** experimenteerbord (MAC `58:8C:81:32:29:54`) is ook als HVAC gebruikt.
 Productie-HVAC draait op `58:8C:81:32:2B:90`. Bij twijfel: check MAC in serial boot-output.
@@ -1211,10 +1216,10 @@ Verhuisd naar `Zarlar_Portal_Plan.md` §14.
 
 | Controller | Matter nu | Na migratie |
 |---|---|---|
-| ROOM controllers | ✅ 8 endpoints (§7.4) | ❌ Verwijderd. Rooms verschijnen via de RPi-bridge. |
+| ROOM controllers | ✅ **verwijderd in v3.0** (room80, 3 nov 2026) | Rooms via de RPi-bridge. |
 | HVAC | ✅ **verwijderd in v2.0** (1 nov 2026) | Kringen en ventilatie via de RPi-bridge. |
 | Dashboard | ✅ **verwijderd in v6.0** (1 nov 2026) | HOME/UIT via de RPi-bridge (⏳ tegel nog te bouwen). |
-| ECO Boiler | ✅ 5 endpoints (§5.4) — *rechtgezet 18 okt 2026* | ❌ Verwijderd. Temperaturen, vulling en pomp via de RPi-bridge. |
+| ECO Boiler | ✅ **verwijderd in v2.0** (3 nov 2026) | Collector, boiler boven/onder, vulling en pomp via de RPi-bridge. |
 | S-ENERGY | ❌ | ❌ |
 
 **Waarom:**
@@ -1242,7 +1247,46 @@ Verhuisd naar `Zarlar_Portal_Plan.md` §14.
 
 ---
 
-## 17. Instructies nieuwe sessie
+## 17. Optimalisatieplan alle controllers (3 nov 2026)
+
+*Goedgekeurd door FiDel op 3 nov 2026. Nu Matter weg is, heeft elke ESP32 ±240 KB vrij geheugen: de prioriteit verschuift van stabiliseren naar **gelijktrekken, bewaken en uitrollen**.*
+
+**Werkwijze:** één controller tegelijk, telkens een 48 u-test (uptime, heap `q/r/s`, Sheet compleet), code pas na GO van FiDel.
+
+### Fase 1 — Afronden (week van 3 nov)
+| # | Wat | Status |
+|---|---|---|
+| 1.1 | 48 u-test **ROOM v3.1** (room80) en **ECO v2.0** evalueren | ⏳ 5 nov |
+| 1.2 | ECO-repo opruimen (nieuwe README, CHANGELOG en oude bestanden weg) en meetresultaten in de README's | ⏳ |
+| 1.3 | Dit document volledig bijwerken: §4–§8 (Dashboard v6.1–v6.3, ROOM v3.x, ECO v2.0), §3.4 en Matter-secties laten vervallen | ⏳ |
+
+### Fase 2 — Kleine opruimversies (geen nieuwe functies)
+| # | Wat |
+|---|---|
+| 2.1 | **HVAC v2.1:** eigen Google Sheets-push weg (§3.15) |
+| 2.2 | **ECO v2.1:** dode `publishHVAC()` weg (de HVAC heeft geen `/eco_energy`; die leest zelf `/json`) |
+| 2.3 | **mDNS terug** op alle controllers (`hvac.local`, `eco.local`, …) |
+| 2.4 | **WiFi-herstel overal gelijk:** geen slaapstand, elke 30 s opnieuw verbinden, AP sluit na herstel (bewezen in de kelder, Woning HVAC v1.5) |
+| 2.5 | **Dezelfde diagnose in elke `/json`:** uptime, heap %, grootste blok, minimum heap, RSSI — met dezelfde keys (nu: ECO RSSI `p`, de rest `ac`). Nieuwe keys alleen met toestemming (§3.10); GAS-scripts, Dashboard en RPi mee aanpassen |
+
+### Fase 3 — Centraal bewaken op de RPi
+| # | Wat |
+|---|---|
+| 3.1 | **Statuspagina in de portal:** per controller versie, online/offline, uptime en heap, met waarschuwing bij herstart of grootste blok < 50 KB. Geen logs meer plakken om te zien of alles gezond is |
+| 3.2 | **HOME/UIT-tegel** van het Dashboard via de RPi (`/home_json`, `/set_home_global`) — de laatste Apple Home-functie die nog ontbreekt |
+
+### Fase 4 — ROOM-sketch afwerken en uitrollen (grootste winst)
+| # | Wat |
+|---|---|
+| 4.1 | ROOM-plan **v3.2 → v3.10** (`ESP32C6_ROOMS/README.md`): diagnose, WiFi, CO2 niet-blokkerend, mDNS, pagina's in aparte `.h`-bestanden (OTA, advanced, settings), LDR, Photon-pariteit |
+| 4.2 | **Uitrol room per room:** Photon vervangen door ESP32 ROOM; in `server.js` en de plugin is dat één regel, de tegels verschijnen vanzelf in Zarlardinge |
+
+### Daarna
+- Energiebeslissingen en Tesla-bridge op de RPi (Portal Plan §17): vraagt een stabiele basis, die er na fase 1–3 is.
+
+---
+
+## 18. Instructies nieuwe sessie
 
 1. **Upload dit document**, plus de relevante sketch(es). Voor RPi- of energiesessies ook `Zarlar_Portal_Plan.md`.
 2. **Vraag Claude het document samen te vatten** vóór hij iets aanpast.
@@ -1251,7 +1295,7 @@ Verhuisd naar `Zarlar_Portal_Plan.md` §14.
 5. **Code wint van tekst:** bij twijfel is de actieve sketch de referentie, niet dit document.
 
 **Kritische herinneringen:**
-- `#define Serial Serial0` bovenaan, verplicht voor ESP32-C6 RISC-V met Matter (zie §16 voor zonder Matter)
+- `#define Serial Serial0` bovenaan (zie §16 voor de keuze per sketch nu Matter weg is)
 - Versieheader aanpassen bij elke wijziging — en de **firmwareversie zichtbaar** houden op de statuspagina (één `#define …_VERSION`, enkel bij het laden van de pagina, niet in `/json`)
 - Bij een JSON-structuurwijziging: GAS-script + Dashboard + RPi portal nalopen (§3.10)
 - IO-pins altijd onmiddellijk aansturen (§3.6)
@@ -1271,4 +1315,4 @@ Verhuisd naar `Zarlar_Portal_Plan.md` §14.
 - **Google Sheets:** controllers posten nooit zelf; enkel het Dashboard (§3.15).
 - **Tesla:** geen automatische sturing in de sketch. Beslissingen komen van de RPi (§6.10).
 
-*Zarlar project — Filip Delannoy — bijgewerkt 21 oktober 2026*
+*Zarlar project — Filip Delannoy — bijgewerkt 3 november 2026*
