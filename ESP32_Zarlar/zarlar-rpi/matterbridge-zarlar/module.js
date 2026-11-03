@@ -1,8 +1,16 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// matterbridge-zarlar v0.7 — Zarlar Photon-knoppen, rooms en HVAC in Apple Home
+// matterbridge-zarlar v0.8 — Zarlar Photon-knoppen, rooms, HVAC en ECO-boiler in Apple Home
 // Filip Delannoy — Portal Plan §16.9 (F4a)
 //
 // Apple Home ──► Matterbridge (deze plugin) ──► server.js (RPi) ──► Particle ──► Photon
+//
+// v0.8 (3 nov 2026): ECO-boiler (ESP32 .71) als één toestel "ECO-boiler" (Portal Plan §16.13 E2,
+//   server.js ≥ v2.11). Vervangt de Matter-tegels van de ECO zelf (woning "Matter Home").
+//   - Gegevens uit GET /api/eco-apple (naam, online, eqMax = 25 kWh).
+//   - Onderdelen: Collector (temp, /json l), Boiler boven (b), Boiler onder (g),
+//     Vulling (vochtigheid % = i / eqMax × 100), Pomp (stopcontact, o).
+//   - Pomp aan → POST /api/set/eco {pomp:1} (60 s geforceerd), uit → {pomp:0} (automatisch).
+//   - Elke 10 s /api/poll/eco → tegels bijwerken. ECO offline → "geen reactie".
 //
 // v0.7 (21 okt 2026): HVAC (ESP32 .70) als één toestel "HVAC" (Portal Plan §16.12, server.js ≥ v2.10)
 //   - Gegevens uit GET /api/hvac-apple (naam, online, 7 kringnamen uit de HVAC-instellingen).
@@ -62,7 +70,7 @@ import { MatterbridgeDynamicPlatform, MatterbridgeEndpoint, onOffLight, onOffPlu
 import { OnOff, LevelControl, ColorControl, Thermostat, RelativeHumidityMeasurement, OccupancySensing,
          BridgedDeviceBasicInformation, TemperatureMeasurement, FanControl } from 'matterbridge/matter/clusters';
 
-const VERSIE  = '0.7.0';
+const VERSIE  = '0.8.0';
 const POLL_MS = 10000;   // R5: rooms elke 10 s opvragen
 const PORTAL  = 'http://192.168.0.50:3000';
 const wacht   = ms => new Promise(r => setTimeout(r, ms));
@@ -123,6 +131,7 @@ export class ZarlarPlatform extends MatterbridgeDynamicPlatform {
     this.wachtrij   = new Map();   // dimmer/kleur-id → { aan, niveau|hue|sat, timer }
     this.rooms      = [];          // [{ id, naam, mov2, n (aantal pixels), tegels: {soort → endpoint} }]
     this.hvac       = null;        // { id, naam, toestel, tegels: {sleutel → endpoint}, online } (v0.7)
+    this.eco        = null;        // { id, naam, eqMax, toestel, tegels, online } (v0.8)
     this.pollTimer  = null;
     this.gestopt    = false;
     this.log.info(`Zarlar v${VERSIE} — portal ${this.portal}`);
@@ -201,6 +210,7 @@ export class ZarlarPlatform extends MatterbridgeDynamicPlatform {
 
     await this.maakRooms();
     await this.maakHvac();
+    await this.maakEco();
   }
 
   async onConfigure() {
@@ -215,9 +225,11 @@ export class ZarlarPlatform extends MatterbridgeDynamicPlatform {
     // Rooms: meteen een eerste keer, daarna elke POLL_MS
     await this.pollRooms();
     await this.pollHvac();
+    await this.pollEco();
     this.pollTimer = setInterval(() => {
       this.pollRooms().catch(e => this.log.warn(`Poll rooms: ${e.message}`));
       this.pollHvac().catch(e => this.log.warn(`Poll HVAC: ${e.message}`));
+      this.pollEco().catch(e => this.log.warn(`Poll ECO: ${e.message}`));
     }, POLL_MS);
   }
 
@@ -664,6 +676,125 @@ export class ZarlarPlatform extends MatterbridgeDynamicPlatform {
     // ECO-pompen
     await zet(t.sch, OnOff, 'onOff', !!Number(j.y));
     await zet(t.won, OnOff, 'onOff', !!Number(j.aa));
+  }
+
+  // ═══ ECO-boiler (v0.8, Portal Plan §16.13) ═════════════════════════════════
+
+  async haalEco() {
+    for (let poging = 1; !this.gestopt; poging++) {
+      try {
+        const r = await fetch(this.portal + '/api/eco-apple', { signal: AbortSignal.timeout(15000) });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return await r.json();
+      } catch (e) {
+        this.log.warn(`ECO niet opgehaald (poging ${poging}): ${e.message} — opnieuw over 10 s`);
+        await wacht(10000);
+      }
+    }
+    return null;
+  }
+
+  async maakEco() {
+    const e = await this.haalEco();
+    if (!e) return;
+    const E = e.id, t = {}, namen = {};
+
+    const toestel = new MatterbridgeEndpoint([bridgedNode, powerSource], { id: E })
+      .createDefaultBridgedDeviceBasicInformationClusterServer(kort(e.naam), 'ZARLAR-' + E, this.matterbridge.aggregatorVendorId, 'Delannoy', 'Zarlar ECO-boiler', 1, VERSIE)
+      .createDefaultPowerSourceWiredClusterServer()
+      .addRequiredClusterServers();
+
+    // 1-3. Temperaturen
+    for (const [key, naam] of [['tSun', 'Collector'], ['tBoven', 'Boiler boven'], ['tOnder', 'Boiler onder']]) {
+      t[key] = toestel.addChildDeviceType(naam, temperatureSensor)
+        .createDefaultIdentifyClusterServer()
+        .createDefaultTemperatureMeasurementClusterServer(null)
+        .addRequiredClusterServers();
+      namen[key] = naam;
+    }
+
+    // 4. Vulling: opgeslagen energie als % van eqMax (zoals de ECO nu via Matter)
+    t.vulling = toestel.addChildDeviceType('Vulling', humiditySensor)
+      .createDefaultIdentifyClusterServer()
+      .createDefaultRelativeHumidityMeasurementClusterServer(null)
+      .addRequiredClusterServers();
+    namen.vulling = 'Vulling';
+
+    // 5. Pomp: aan = 60 s geforceerd, uit = terug naar automatisch
+    const p = toestel.addChildDeviceType('Pomp', onOffPlugInUnit)
+      .createDefaultIdentifyClusterServer()
+      .createDefaultOnOffClusterServer(false)
+      .addRequiredClusterServers();
+    p.addCommandHandler('on',     () => this.ecoSet({ pomp: 1 }));
+    p.addCommandHandler('off',    () => this.ecoSet({ pomp: 0 }));
+    p.addCommandHandler('toggle', () => this.ecoSet({ pomp: p.getAttribute(OnOff, 'onOff') ? 0 : 1 }));
+    t.pomp = p;
+    namen.pomp = 'Pomp';
+
+    for (const [key, dev] of Object.entries(t)) await dev.addFixedLabel('name', kort16(namen[key]));
+
+    await this.registerDevice(toestel);
+    this.eco = { id: E, naam: e.naam, eqMax: Number(e.eqMax) > 0 ? Number(e.eqMax) : 25, toestel, tegels: t, online: undefined };
+    this.log.info(`ECO (${e.naam}): 1 toestel met ${Object.keys(t).length} onderdelen geregistreerd${e.online ? '' : ' — ECO nu offline'}`);
+  }
+
+  // Commando naar de ECO (niet afwachten in Matter), daarna meteen opnieuw pollen
+  ecoSet(body) {
+    const E = this.eco?.id || 'eco';
+    (async () => {
+      try {
+        const r = await fetch(`${this.portal}/api/set/${E}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body), signal: AbortSignal.timeout(10000),
+        });
+        if (r.ok) this.log.info(`${E} ← ${JSON.stringify(body)}`);
+        else      this.log.warn(`${E} ← ${JSON.stringify(body)} mislukt: HTTP ${r.status}`);
+      } catch (e) {
+        this.log.warn(`${E} ← ${JSON.stringify(body)}: portal niet bereikbaar (${e.message})`);
+      }
+      await wacht(800);
+      await this.pollEco();
+    })().catch(e => this.log.error(`${E}: ${e.message}`));
+  }
+
+  // ECO opvragen en de tegels bijwerken
+  async pollEco() {
+    const ec = this.eco;
+    if (!ec) return;
+    const t = ec.tegels;
+    let j = null;
+    try {
+      const r = await fetch(`${this.portal}/api/poll/${ec.id}`, { signal: AbortSignal.timeout(5000) });
+      j = r.ok ? await r.json() : null;
+    } catch { j = null; }
+
+    const online = !!(j && j.online !== false);
+    if (ec.online !== online) {
+      ec.online = online;
+      await ec.toestel.setAttribute(BridgedDeviceBasicInformation, 'reachable', online, this.log).catch(() => {});
+      this.log.info(`ECO ${online ? 'online' : 'OFFLINE — tegels "geen reactie"'}`);
+    }
+    if (!online) return;
+
+    const zet = async (dev, cl, attr, v) => {
+      if (dev && v !== undefined && v !== null && dev.getAttribute(cl, attr) !== v) await dev.setAttribute(cl, attr, v, this.log);
+    };
+
+    // Temperaturen (°C → 1/100 °C); sensorfout (−127) niet tonen
+    for (const [key, veld] of [['tSun', 'l'], ['tBoven', 'b'], ['tOnder', 'g']]) {
+      const v = Number(j[veld]);
+      if (Number.isFinite(v) && v > -50) await zet(t[key], TemperatureMeasurement, 'measuredValue', Math.round(v * 100));
+    }
+
+    // Vulling: EQtot / eqMax, begrensd 0-100 % (Matter: 1/100 %)
+    const q = Number(j.i);
+    if (Number.isFinite(q)) {
+      const pct = Math.max(0, Math.min(100, q / ec.eqMax * 100));
+      await zet(t.vulling, RelativeHumidityMeasurement, 'measuredValue', Math.round(pct * 100));
+    }
+
+    // Pomp: relais
+    await zet(t.pomp, OnOff, 'onOff', !!Number(j.o));
   }
 
   async onShutdown(reason) {
