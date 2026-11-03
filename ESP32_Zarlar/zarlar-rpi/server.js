@@ -1,6 +1,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Zarlar Dashboard Server v2.10 — Raspberry Pi
+// Zarlar Dashboard Server v2.11 — Raspberry Pi
 // Node.js + Express — draait op poort 3000
+//
+// v2.11 (3 nov 2026): ECO-boiler (ESP32 .71) naar de RPi-bridge, stap E1 (Portal Plan §16.13)
+//   - ECO_APPLE: één toestel "ECO-boiler" in Apple Home (collector, boiler boven/onder,
+//     vulling %, pomp). Vervangt de eigen Matter-tegels van de ECO (laatste ESP32 met Matter).
+//   - GET /api/eco-apple → { id, naam, online, eqMax }. eqMax = ECO_EQ_MAX_KWH (25 kWh, zoals
+//     EQ_MAX_KWH in de ECO); vulling % = EQtot (/json "i") / eqMax × 100. Alleen eigen netwerk.
+//   - POST /api/set/eco → GET-endpoints van de ECO (die heeft geen /set):
+//       {pomp: 1} → /pump_override_on (60 s geforceerd aan)
+//       {pomp: 0} → /pump_override_cancel (terug naar automatisch)
+//   - Commentaar rechtgezet: de ECO heeft geen /set POST-endpoint.
+//   - Geen andere wijzigingen.
 //
 // v2.10 (19 okt 2026): HVAC (ESP32 .70) naar de RPi-bridge, stap H1 (§16.12)
 //   - HVAC_APPLE: één toestel "HVAC" in Apple Home (testopstelling; de Photon S-HVAC-knoppen blijven).
@@ -189,6 +200,11 @@ const ROOMS_APPLE = [
 // Eén toestel met boilertemperaturen, 7 kringen, ventilatie en de ECO-pompen.
 const HVAC_APPLE = { id: 'hvac', naam: 'HVAC' };
 const HVAC_INFO  = path.join(__dirname, 'hvac-info.json');   // laatst gekende kringnamen
+
+// ── ECO-boiler in Apple Home (v2.11, §16.13) ─────────────────────────────────
+// Eén toestel met collector, boiler boven/onder, vulling % en de pomp.
+const ECO_APPLE      = { id: 'eco', naam: 'ECO-boiler' };
+const ECO_EQ_MAX_KWH = 25;   // = EQ_MAX_KWH in de ECO-/settings (staat niet in /json)
 
 // ── Standaard instellingen ────────────────────────────────────────────────────
 const DEFAULT_SETTINGS = {
@@ -691,6 +707,19 @@ app.get('/api/hvac-apple', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// ECO IN APPLE HOME (v2.11)  →  GET /api/eco-apple
+// Vaste definitie; eqMax laat de plugin de vulling in % berekenen.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.get('/api/eco-apple', async (req, res) => {
+  if (!isEigenNetwerk(req.socket.remoteAddress))
+    return res.status(403).json({ error: 'Alleen vanaf eigen netwerk' });
+  let online = false;
+  try { online = (await fetch(CONTROLLERS[ECO_APPLE.id] + '/json', { timeout: 2000 })).ok; } catch {}
+  res.json({ id: ECO_APPLE.id, naam: ECO_APPLE.naam, online, eqMax: ECO_EQ_MAX_KWH });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // STUUR COMMANDO NAAR CONTROLLER  →  /set
 // v2.1: ROOM controllers proxy (sw1/sw2/sw3 → GET endpoints)
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -829,8 +858,22 @@ app.post('/api/set/:controller', async (req, res) => {
     }
   }
 
+  // ─── ECO PROXY (v2.11, §16.13) ─────────────────────────────────────────────
+  // De ECO heeft geen /set POST endpoint, alleen GET endpoints.
+  if (naam === 'eco') {
+    try {
+      if (body.pomp === undefined)
+        return res.status(400).json({ error: 'Geen geldig ECO-commando', verwacht: 'pomp' });
+      const ep = Number(body.pomp) ? 'pump_override_on' : 'pump_override_cancel';
+      const r  = await fetch(`${baseUrl}/${ep}`, { timeout: 3000 });
+      return res.json({ ok: true, controller: naam, results: [{ pomp: r.ok, actie: ep }] });
+    } catch(e) {
+      return res.status(503).json({ error: 'ECO commando mislukt', detail: e.message });
+    }
+  }
+
   // ─── ANDERE CONTROLLERS (origineel gedrag) ─────────────────────────────────
-  // HVAC, ECO, SENRG hebben wel een /set POST endpoint
+  // Controllers met een eigen /set POST endpoint (HVAC, ECO en ROOM hebben hierboven een eigen tak)
   try {
     const r = await fetch(baseUrl + '/set', {
       method:  'POST',
