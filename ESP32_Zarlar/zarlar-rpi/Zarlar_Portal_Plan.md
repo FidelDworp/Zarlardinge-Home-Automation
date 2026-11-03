@@ -1380,6 +1380,79 @@ Gedrag om te weten: de tegel toont altijd de **werkelijke** toestand uit `/json`
 
 **Aandachtspunt:** `/json_settings` van de HVAC geeft ook het WiFi-wachtwoord leesbaar terug. De RPi neemt daar enkel de kringnamen uit over. Het wachtwoord uit dat endpoint halen = aparte, kleine HVAC-versie later (geen nieuwe JSON-key, wel één veld minder).
 
+### 16.13 ECO-boiler (ESP32 .71) naar de RPi-bridge — plan (3 nov 2026)
+
+*Status: **plan**, code pas na GO. Bron: `ESP32C6_ECO-boiler/Productie/ESP32-C6_MATTER_ECO-boiler.ino` v1.23 (22 mrt 2026). De ECO is de **laatste ESP32 met Matter** (HVAC v2.0, Dashboard v6.0 en ROOM v3.0 zijn al zonder).*
+
+**Vertrekpunt**
+- De ECO-tegels staan in de testwoning **"Matter Home"**, nog niet in Zarlardinge. Er hangen **geen scènes** aan (FiDel, 3/11).
+- Heap v1.23 met Matter (Sheet "S-ECO Log", 29-30 okt): vrij **25 %**, grootste blok **47-49 KB**, Heap min **2 KB**; uptime ±78 dagen zonder herstart.
+- `server.js` kent de ECO al voor de portal (`CONTROLLERS.eco`, `http://192.168.0.71`), nog niet voor Apple Home.
+
+**Hoe Matter vandaag op de ECO werkt (v1.23)**
+
+| Tegel (Matter-type) | Variabele in de sketch | Waarde | Bediening vanuit Apple Home |
+|---|---|---|---|
+| Collector (temperatuursensor) | `matter_tsun` | `Tsun` (PT-sensor op het dak) | — |
+| Boiler boven (temperatuursensor) | `matter_etoph` | `ETopH` | — |
+| Boiler onder (temperatuursensor) | `matter_eboth` | `EBotH` | — |
+| Vulling (**vochtsensor als stand-in voor %**) | `matter_eqpct` | `EQtot / EQ_MAX_KWH × 100`, begrensd 0-100 %. `EQ_MAX_KWH` standaard **25 kWh**, instelbaar in de ECO-`/settings` (NVS `eq_max_kwh`), **niet** in `/json` | — |
+| Pomp (ventilator / FanControl) | `matter_pomp` | snelheid = `pwm × 100 / 255` (`pwm_override` tijdens een override, anders `pwm_value`); modus HIGH als pwm > 0, anders OFF | snelheid > 0 % of modus AAN → **override 60 s** (`PUMP_OVERRIDE_DURATION`); 0 % of modus UIT → override stoppen, terug naar automatisch |
+
+- Update naar Apple Home elke **5 s** (`update_matter_sensors()` in `loop()`), callbacks met `ignore_callbacks` tegen terugkoppeling.
+- ⚠️ **Snelheid instellen werkt in de praktijk niet:** de callback zet `pwm_override`, maar `checkPumpLogic()` stuurt tijdens elke override de pomp op **`PWM_MAX`** (of uit). De pomptegel is dus in feite een **aan/uit-knop voor 60 s**. Op de bridge volstaat een stopcontact-tegel (zoals ECO => SCHUUR / WONING bij de HVAC).
+- Pairing via de ECO-`/settings` (sectie "Matter / HomeKit"), reset via `/matter_reset` of serial `reset-matter`; automatisch herstel bij corrupte Matter-NVS bij het opstarten.
+
+**Wat de bridge uit `/json` haalt** (ECO v1.23, compacte keys)
+
+| Key | Betekenis | Key | Betekenis |
+|---|---|---|---|
+| `a` | uptime (s) | `l` | **Tsun** (°C) |
+| `b` | **ETopH** (°C) | `m` | dT (°C) |
+| `c`-`e` | ETopL, EMidH, EMidL | `n` | PWM pomp (0-255) |
+| `f` | EBotH (°C) | `o` | **pomprelais** (0/1) |
+| `g` | **EBotL** (°C) | `p` | RSSI (dBm) |
+| `h` | EAv (°C) | `q` | vrij geheugen (%) |
+| `i` | **EQtot** (kWh) | `r` | grootste blok (KB) |
+| `j` | dEQ (kWh) | `s` | Heap min (KB) |
+| `k` | yield vandaag (kWh) | | |
+
+> Opgelet: in de ECO-sketch zelf toont Matter "boiler onder" = `EBotH` (key `f`), terwijl de HVAC en de Master "onder" = de onderste laag gebruiken. Voorstel: op de bridge **`EBotL` (`g`)**, zoals bij de HVAC. Beslissing B-E2.
+
+**Bedieningsadressen op de ECO** (GET): `/pump_override_on` (60 s aan op `PWM_MAX`), `/pump_override_off` (60 s uit), `/pump_override_cancel` (terug naar automatisch).
+
+**Doel:** één **gecombineerd toestel "ECO-boiler"** in de woning Zarlardinge, zoals "HVAC" en "Eetplaats".
+
+| Onderdeel (label) | Matter-type op de bridge | Uit `/json` | Klikken → ECO (GET) |
+|---|---|---|---|
+| Collector | temperatuursensor | `l` | — |
+| Boiler boven | temperatuursensor | `b` | — |
+| Boiler onder | temperatuursensor | `g` (of `f`, B-E2) | — |
+| Vulling | vochtsensor (%) | `i / EQ_MAX_KWH × 100` | — |
+| Pomp | stopcontact | `o` | aan → `/pump_override_on` (60 s); uit → `/pump_override_cancel` |
+
+**Werkverdeling (zoals §16.12)**
+- *`server.js`:* `ECO_APPLE = { id: 'eco', naam: 'ECO-boiler' }`; `GET /api/eco-apple`; `POST /api/set/eco` `{pomp: 1|0}` → GET-endpoints hierboven; `EQ_MAX_KWH` als constante (25) in `server.js`, of later als key in `/json` (nieuwe key enkel na afspraak).
+- *Plugin `matterbridge-zarlar`:* `maakEco()` met vaste id `eco`; elke 10 s pollen; ECO offline → "geen reactie".
+
+**Stappenplan**
+
+| Stap | Wat | Meetpunt | Terugweg |
+|---|---|---|---|
+| **E1** ✅ 3/11 | `server.js` **v2.11**: ECO-endpoints voor Apple Home | `curl` `/api/eco-apple` en `POST /api/set/eco {"pomp":1}` → `o=1`, na 60 s weer automatisch | vorige `server.js` |
+| **E2** | Plugin **v0.8**: toestel "ECO-boiler" in Zarlardinge (onderdelen eenmalig zelf hernoemen) | 5 tegels zichtbaar, waarden gelijk aan de ECO-webpagina | vorige plugin |
+| **E3** | Korte parallelle test naast de tegels in "Matter Home" | duur beslist FiDel | — |
+| **E4** | ECO-sketch **v2.0 zonder Matter**, bestandsnaam `ESP32-C6_ECO-boiler.ino` | heap-winst; 48 u zonder herstart | v1.23 terugflashen |
+| **E5** | Testwoning **"Matter Home" verwijderen** (AP26): geen enkele ESP32 gebruikt ze dan nog | — | — |
+
+**Beslissingen (3/11/2026, FiDel: "Doe maar!")**
+
+| # | Beslissing |
+|---|---|
+| B-E1 | Pomp als **stopcontact**: aan = 60 s geforceerd, uit = automatisch |
+| B-E2 | "Boiler onder" = onderste laag **`EBotL`** (`g`), zoals de HVAC |
+| B-E3 | Vulling blijft een **vochtsensor (%)** = `EQtot / 25 kWh` |
+
 ## 17. Energiebeslissingen op de RPi (+ Tesla bridge)
 
 *Toegevoegd 16 oktober 2026. Status: **plan**. Beslissing FiDel: alles rond energietarieven, batterijplanning en laadkeuzes komt op de RPi-interface. Keuzes van de gebruikers (Maarten en Filip) worden naar de controllers gestuurd die ze uitvoeren.*
