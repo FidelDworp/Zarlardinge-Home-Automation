@@ -1,5 +1,5 @@
 # Zarlar Portal — Projectdocument
-*Bijgewerkt 21 oktober 2026 — Filip Delannoy (FiDel)*
+*Bijgewerkt 3 november 2026 — Filip Delannoy (FiDel)*
 
 > **Rolverdeling documenten:**
 > - Dit document: alles op de **RPi** (server, pagina's, deploy, Tailscale, Matter-bridge §16, energiebeslissingen §17, tarieven, afrekening, batterij).
@@ -18,6 +18,8 @@
 > **21 oktober 2026:** **HVAC (ESP32 .70) via de RPi-bridge** — `server.js` v2.10 (H1) en plugin v0.7 (H2): toestel "HVAC" met 13 onderdelen in Zarlardinge (§16.8, §16.10, §16.12). Merge-conflict bij de deploy: het Portal Plan was via de website opgeladen → regel §15.3 herbevestigd.
 >
 > **18 oktober 2026:** de **ECO-boiler heeft wél Matter** (5 endpoints sinds v1.18) — rechtgezet in §16.1, §16.3 en §16.11 (bron: sketch v1.23, Master §5.4). HVAC-plan zonder Matter staat in `ESP32-HVAC/README.md` §10.
+>
+> **3 november 2026:** **geen enkele ESP32 heeft nog Matter.** ECO-boiler (.71) via de RPi-bridge: `server.js` v2.11 (E1) en plugin v0.8 (E2), toestel "ECO-boiler" met 5 onderdelen in Zarlardinge (§16.13). ECO v2.0 zonder Matter geflasht (E4, grootste blok 243 KB; 48 u-test loopt). Testwoning **"Matter Home" verwijderd** (E5/AP26). Eerder al zonder Matter: HVAC v2.0 (1/11), Dashboard v6.0, ROOM v3.0 (3/11).
 
 ---
 
@@ -1148,6 +1150,7 @@ Dashboard  ◄──────────────────────
 | **F3b** verhuis | 17/10/2026 | ✅ Bridge verwijderd uit de testwoning "Matter Home" en opnieuw gekoppeld in **Zarlardinge** als **"Testkamer RPi Matter Bridge"**. Hub: Keuken Geel Bolleke. |
 | **F4** room80 | 17/10/2026 | ✅ `server.js` v2.9 + plugin v0.6: room80 als één samengesteld toestel "Eetplaats" (8 onderdelen) in Zarlardinge; oude tegels van de ESP32 blijven ter vergelijking in "Matter Home" (F5). Heap room80 **vóór F6**: vrij 17 %, grootste blok 31 KB, minimum ooit 7 KB. |
 | **H1-H2** HVAC | 21/10/2026 | ✅ `server.js` v2.10 + plugin v0.7: ESP32-HVAC als één samengesteld toestel "HVAC" (13 onderdelen) in Zarlardinge, onderdelen door FiDel hernoemd. Photon S-HVAC-knoppen ongewijzigd (§16.12) |
+| **E1-E5** ECO | 3/11/2026 | ✅ `server.js` v2.11 + plugin v0.8: ESP32-ECO als één samengesteld toestel "ECO-boiler" (5 onderdelen) in Zarlardinge; tegels verschenen zonder herstart van de hub. ECO v2.0 zonder Matter (grootste blok 243 KB). Testwoning "Matter Home" verwijderd (§16.13) |
 | **F4a** Photons | 17/10/2026 | ✅ 26 Photon-knoppen in Apple Home: `server.js` v2.4 → v2.8 + plugin `matterbridge-zarlar` v0.1 → v0.3 (§16.9–16.10). De ESP32-WROOM-32D met HomeSpan is niet meer nodig. |
 
 **Lessen F3 (16/10):**
@@ -1238,7 +1241,7 @@ Apple Home ──► Matterbridge (plugin "zarlar") ──► server.js /api/pho
 
 | | |
 |---|---|
-| Versie | **v0.7** (21/10/2026): + HVAC als samengesteld toestel (§16.12). Historiek: v0.1 lampen/schakelaars · v0.2 dimmers · v0.3 kleurenlamp · v0.4 room-tegels (los) · v0.5 room = één toestel · v0.6 namen als FixedLabel (Apple toont ze niet: onderdelen één keer zelf hernoemen) · v0.7 HVAC-toestel |
+| Versie | **v0.8** (3/11/2026): + ECO-boiler als samengesteld toestel (§16.13). Historiek: v0.1 lampen/schakelaars · v0.2 dimmers · v0.3 kleurenlamp · v0.4 room-tegels (los) · v0.5 room = één toestel · v0.6 namen als FixedLabel (Apple toont ze niet: onderdelen één keer zelf hernoemen) · v0.7 HVAC-toestel · v0.8 ECO-toestel |
 | Bestanden | `package.json`, `module.js`, `matterbridge-zarlar.config.json` — gewoon JavaScript, geen buildstap |
 | Op de Pi | `/home/fidel/Matterbridge/matterbridge-zarlar/` (in de container: `/root/Matterbridge/...`, gekoppeld volume → overleeft updates en `--force-recreate`) |
 | In de repo | `ESP32_Zarlar/zarlar-rpi/matterbridge-zarlar/` ✅ |
@@ -1265,7 +1268,7 @@ Dan op de Pi:
 ```
 scp ~/Downloads/matterbridge-zarlar.tar.gz fidel@100.123.74.113:/tmp/ && ssh -t fidel@100.123.74.113 'sudo tar -xzf /tmp/matterbridge-zarlar.tar.gz -C /home/fidel/Matterbridge && cd ~/matterbridge && sudo docker compose restart && sleep 40 && sudo docker logs --since 1m matterbridge 2>&1 | grep -iE "Zarlar v|knoppen geregistreerd|error"'
 ```
-Daarna **Keuken Geel Bolleke herstarten** als er tegels bijkomen of verdwijnen.
+Nieuwe tegels verschijnen meestal meteen (ECO-boiler, 3/11). Pas als ze wegblijven: **Keuken Geel Bolleke herstarten**.
 
 **Plugin in de repo zetten (AP27, eenmalig, ✅ 17/10):**
 ```
@@ -1307,7 +1310,7 @@ Daarna staat de plugin via `update.sh` ook in `/home/fidel/repo/ESP32_Zarlar/zar
 4. **F6:** room80 zonder Matter flashen (ROOM-sketch v3.0, repo `ESP32C6_ROOMS`), oude tegels verdwijnen, scènes opnieuw instellen, heapwinst meten. Daarna AP26 (testwoning "Matter Home" verwijderen). Zie plan hieronder.
 5. **F7:** volgende rooms = één regel in de lijst, geen nieuwe code.
 
-HVAC (9 tegels), ECO (5 tegels) en de HOME/UIT-knop van het Dashboard hebben ook nog eigen Matter; die volgen in latere fasen. **HVAC: plan in §16.12.** Volgorde per controller zoals bij room80: heap meten → bridge biedt de controller aan → parallelle test → pas dan een sketch zonder Matter (HVAC: `ESP32-HVAC/README.md` §10).
+**Stand 3/11/2026:** HVAC (§16.12) en ECO (§16.13) lopen via de bridge; geen enkele ESP32 heeft nog Matter. Nog open: de HOME/UIT-knop van het Dashboard als tegel op de RPi (`/home_json`, `/set_home_global`). Werkwijze per controller: heap meten → bridge biedt de controller aan → parallelle test → sketch zonder Matter.
 
 **Plan F6: ROOM-sketch v3.0 zonder Matter (code pas na GO; zelfde plan als Master §7.9):**
 | | |
@@ -1325,7 +1328,7 @@ HVAC (9 tegels), ECO (5 tegels) en de HOME/UIT-knop van het Dashboard hebben ook
 
 ### 16.12 HVAC (ESP32 .70) naar de RPi-bridge — plan (19 okt 2026)
 
-*Status: **H1 ✅ en H2 ✅ (21/10/2026)** — toestel "HVAC" staat in Zarlardinge. Volgende: tegels één voor één testen, dan H3 (parallelle test). Code pas na GO, één stap tegelijk.*
+*Status: **✅ afgewerkt.** H1 en H2 op 21/10/2026: toestel "HVAC" in Zarlardinge. HVAC v2.0 zonder Matter op 1/11/2026 (48 u-test geslaagd: 0 herstarts, grootste blok 239–251 KB).*
 
 **Vertrekpunt**
 - De **Photon S-HVAC stuurt nog de echte verwarming**. De ESP32-HVAC (.70, sketch v1.19) is een **testopstelling** (kringen met testinstellingen, alle op room80).
@@ -1382,7 +1385,7 @@ Gedrag om te weten: de tegel toont altijd de **werkelijke** toestand uit `/json`
 
 ### 16.13 ECO-boiler (ESP32 .71) naar de RPi-bridge — plan (3 nov 2026)
 
-*Status: **plan**, code pas na GO. Bron: `ESP32C6_ECO-boiler/Productie/ESP32-C6_MATTER_ECO-boiler.ino` v1.23 (22 mrt 2026). De ECO is de **laatste ESP32 met Matter** (HVAC v2.0, Dashboard v6.0 en ROOM v3.0 zijn al zonder).*
+*Status: **E1, E2, E3, E5 ✅ (3/11/2026); E4 ECO v2.0 geflasht, 48 u-test loopt tot 5/11.** Bron was `ESP32-C6_MATTER_ECO-boiler.ino` v1.23; nu `Productie/ESP32-C6_ECO-boiler/ESP32-C6_ECO-boiler.ino` v2.0 (grootste blok 243 KB na OTA).*
 
 **Vertrekpunt**
 - De ECO-tegels staan in de testwoning **"Matter Home"**, nog niet in Zarlardinge. Er hangen **geen scènes** aan (FiDel, 3/11).
@@ -1440,10 +1443,10 @@ Gedrag om te weten: de tegel toont altijd de **werkelijke** toestand uit `/json`
 | Stap | Wat | Meetpunt | Terugweg |
 |---|---|---|---|
 | **E1** ✅ 3/11 | `server.js` **v2.11**: ECO-endpoints voor Apple Home | `curl` `/api/eco-apple` en `POST /api/set/eco {"pomp":1}` → `o=1`, na 60 s weer automatisch | vorige `server.js` |
-| **E2** | Plugin **v0.8**: toestel "ECO-boiler" in Zarlardinge (onderdelen eenmalig zelf hernoemen) | 5 tegels zichtbaar, waarden gelijk aan de ECO-webpagina | vorige plugin |
-| **E3** | Korte parallelle test naast de tegels in "Matter Home" | duur beslist FiDel | — |
-| **E4** | ECO-sketch **v2.0 zonder Matter**, bestandsnaam `ESP32-C6_ECO-boiler.ino` | heap-winst; 48 u zonder herstart | v1.23 terugflashen |
-| **E5** | Testwoning **"Matter Home" verwijderen** (AP26): geen enkele ESP32 gebruikt ze dan nog | — | — |
+| **E2** ✅ 3/11 | Plugin **v0.8**: toestel "ECO-boiler" in Zarlardinge (onderdelen eenmalig zelf hernoemen) | 5 tegels zichtbaar, waarden gelijk aan de ECO-webpagina | vorige plugin |
+| **E3** ✅ 3/11 | Korte parallelle test naast de tegels in "Matter Home" | meteen gestopt: zelfde `/json`, geen scènes | — |
+| **E4** ⏳ 3/11 (geflasht, 48 u-test) | ECO-sketch **v2.0 zonder Matter**, bestandsnaam `ESP32-C6_ECO-boiler.ino` | heap-winst; 48 u zonder herstart | v1.23 terugflashen |
+| **E5** ✅ 3/11 | Testwoning **"Matter Home" verwijderd** (AP26) door FiDel | — | — |
 
 **Beslissingen (3/11/2026, FiDel: "Doe maar!")**
 
