@@ -64,6 +64,35 @@ Een paar slimme keuzes die we onderweg leerden:
 - **Controllers sturen zelf niets naar het internet.** Dat vraagt te veel geheugen. Het Dashboard doet het voor hen.
 - **Eén sketch voor alle kamers.** Wat verschilt per kamer (naam, aantal lampen, welke sensoren), stel je in op een webpagina. Zo moet er maar één programma onderhouden worden.
 
+### Eén netwerk achter de Telenet-router
+
+De woning en de schuur delen **één wifi-netwerk** achter dezelfde **Telenet-router** (in het kastje in jouw inkomhal). Alle toestellen krijgen een adres `192.168.0.x`, staan in de lijst van die router en kunnen **rechtstreeks met elkaar praten**:
+
+- Thuis kun je met je gsm of laptop elke controller in de schuur gewoon openen, bv. `http://192.168.0.71`. Tailscale heb je alleen nodig als je **niet** thuis bent.
+- Omgekeerd ziet de schuur jouw toestellen ook, zoals je ventilatiecontroller (`pwmtest.local`).
+- De controllers van de schuur hebben een **vast IP-adres** (ingesteld in de controller zelf). Zo weten het Dashboard en de RPi altijd waar ze moeten zoeken.
+
+**Afspraak:** de adressen hieronder (192.168.0.50 tot .82) zijn **voor de schuur gereserveerd**. Geef je eigen toestellen geen vast adres in dat bereik; laat ze een adres van de router krijgen (DHCP) of spreek een eigen reeks af met papa.
+
+| IP-adres | Toestel | Wat | Stand (nov 2026) |
+|---|---|---|---|
+| 192.168.0.50 | **RPi** (`:3000` = portaal) | Webpagina's, Matter-bridge (Apple Home), energiebeslissingen | ✅ actief |
+| 192.168.0.60 | **Dashboard** | 16×16 lampjesbord, logt elke 5 min naar Google Sheets | ✅ actief |
+| 192.168.0.70 | **HVAC** | Verwarmingskringen en ventilatie | 🧪 test |
+| 192.168.0.71 | **ECO-boiler** | Zonneboiler 490 L | ✅ actief |
+| 192.168.0.72 | **OUTSIDE** | Weerstation | 📋 gepland |
+| 192.168.0.73 | **Smart Energy** | Zonnepanelen, net, stroomprijs, Tesla | ✅ actief |
+| 192.168.0.75 | ROOM **B&B** | Kamer | 📋 eerste ombouw |
+| 192.168.0.76 | ROOM **Badkamer** | Kamer | 📋 gepland |
+| 192.168.0.77 | ROOM **Inkom** | Kamer | 📋 gepland |
+| 192.168.0.78 | ROOM **Keuken** | Kamer | 📋 gepland |
+| 192.168.0.79 | ROOM **Wasplaats** | Kamer | 📋 gepland |
+| 192.168.0.80 | ROOM **Eetplaats** (room80) | Kamer, testbord | ✅ actief |
+| 192.168.0.81 | ROOM **Zitplaats** | Kamer | 📋 gepland |
+| 192.168.0.82 | **ACCESS** | Buitenverlichting | 📋 gepland |
+
+De kamers die nog "gepland" zijn, draaien voorlopig op de oude **Photon**-controllers. Die hebben geen vast adres in deze lijst.
+
 ## 3. Alles bedienen vanuit Google Home
 
 Papa bedient de schuur vanuit **Apple Home**. Jij wilt hetzelfde, maar dan in **Google Home**. Daarvoor is alles al in huis.
