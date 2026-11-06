@@ -88,6 +88,20 @@ Wat je nodig hebt:
 
 Goed om te weten: Google Home toont niet elk Matter-type even mooi als Apple Home (een thermostaat of lamp wel, uitzonderlijke dingen soms niet). Dat testen we samen uit.
 
+### Jouw keuze: onze bridge of een eigen RPi
+
+Een bridge leest alleen de `/json` van de controllers uit en vertaalt die naar Matter. Twee bridges mogen dezelfde controller dus gewoon tegelijk uitlezen. Daardoor kun je kiezen, en later wisselen zonder iets aan je controllers te veranderen.
+
+| | **A. De bridge in de schuur gebruiken** | **B. Een eigen RPi 3B+ met Matterbridge** |
+|---|---|---|
+| Starten | Meteen: papa geeft een koppelcode, klaar | Matterbridge installeren + een eigen plugin voor jouw controllers (een uitgeklede kopie van die van papa) |
+| Wat zie je | Wat in papa's bridge zit (eventueel alleen jouw deel, als aparte "child bridge") | Alleen jouw eigen toestellen |
+| Afhankelijkheid | Herstart of storing van papa's RPi = ook bij jou even weg | Volledig onafhankelijk |
+| Onderhoud | Papa | Jij (met hulp) |
+| Kost | Niets | Een RPi 3B+, goedkoop en ruim genoeg: papa's bridge draait er ook op |
+
+**Voorstel:** begin met A, dan werkt het meteen en zie je hoe Matter werkt. Stap over naar B zodra je meer eigen toestellen hebt of zelf wilt leren sleutelen. In beide gevallen heb je een Google-hub nodig, en je eigen RPi kan ook in papa's Tailscale-netwerk.
+
 ### Van buitenaf: Tailscale
 
 **Tailscale** is een soort privé-tunnel over het internet. Alle toestellen die op hetzelfde Tailscale-account inloggen, zien elkaar alsof ze thuis op de wifi zitten, waar ze ook zijn. Zo kan papa onderweg de pagina's van de RPi en van elke controller openen.
@@ -100,7 +114,8 @@ Je hoort vaak: "koop een Raspberry Pi 5 en installeer **Home Assistant**". Dat i
 
 - **Het werk is al gedaan.** De Matterbridge op de RPi 3B+ draait en is getest met Apple Home. Google Home is een extra koppeling, geen nieuw systeem.
 - **Geen tweede systeem om te onderhouden.** Met Home Assistant krijg je er een volledig apart systeem bij (updates, back-ups, integraties), naast wat er in de schuur al draait. En om in Google Home te komen, heeft Home Assistant zelf ook weer een Matter-bridge nodig.
-- **Kostprijs.** Een RPi 5 met voeding, behuizing en SSD is al gauw meer dan 100 euro, voor iets wat je vandaag al gratis kunt.
+- **Kostprijs.** Een RPi 5 met voeding, behuizing en SSD kost nu al gauw **200 à 250 euro**. Voor een Matter-bridge volstaat een **RPi 3B+**, en via de bridge in de schuur kan het zelfs gratis.
+- **Doorgroeien kan altijd.** Wil je later meer, bv. **camera's en video**, dan stap je over naar een zwaardere RPi. Je controllers en wat je geleerd hebt, neem je gewoon mee.
 - **Zelfde manier van werken als de schuur.** Wat je leert over `/json`, de controllers en de bridge, is precies hoe de rest van Zarlar werkt. Zo kunnen we elkaar helpen.
 
 Later, als je veel toestellen van andere merken wilt combineren of ingewikkelde automatisaties wilt maken, kan Home Assistant wél zinvol worden. Dan kijken we samen opnieuw.
