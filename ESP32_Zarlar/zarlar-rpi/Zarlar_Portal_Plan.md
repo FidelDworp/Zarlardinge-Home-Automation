@@ -1385,7 +1385,7 @@ Gedrag om te weten: de tegel toont altijd de **werkelijke** toestand uit `/json`
 
 ### 16.13 ECO-boiler (ESP32 .71) naar de RPi-bridge — plan (3 nov 2026)
 
-*Status: **E1, E2, E3, E5 ✅ (3/11/2026); E4 ECO v2.0 geflasht, 48 u-test loopt tot 5/11.** Bron was `ESP32-C6_MATTER_ECO-boiler.ino` v1.23; nu `Productie/ESP32-C6_ECO-boiler/ESP32-C6_ECO-boiler.ino` v2.0 (grootste blok 243 KB na OTA).*
+*Status: **E1, E2, E3, E5 ✅ (3/11/2026); E4 ECO v2.0 geflasht, 48 u-test loopt tot 5/11.** Bron was `ESP32-C6_MATTER_ECO-boiler.ino` v1.23; nu `ESP32-C6_ECO-boiler/ESP32-C6_ECO-boiler.ino` v2.0 (grootste blok 243 KB na OTA).*
 
 **Vertrekpunt**
 - De ECO-tegels staan in de testwoning **"Matter Home"**, nog niet in Zarlardinge. Er hangen **geen scènes** aan (FiDel, 3/11).
