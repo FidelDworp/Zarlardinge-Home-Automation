@@ -72,7 +72,7 @@ De woning en de schuur delen **één wifi-netwerk** achter dezelfde **Telenet-ro
 - Omgekeerd ziet de schuur jouw toestellen ook, zoals je ventilatiecontroller (`pwmtest.local`).
 - De controllers van de schuur hebben een **vast IP-adres** (ingesteld in de controller zelf). Zo weten het Dashboard en de RPi altijd waar ze moeten zoeken.
 
-**Afspraak:** de adressen hieronder (192.168.0.50 tot .82) zijn **voor de schuur gereserveerd**. Geef je eigen toestellen geen vast adres in dat bereik; laat ze een adres van de router krijgen (DHCP) of spreek een eigen reeks af met papa.
+**Afspraak:** de adressen hieronder (192.168.0.50 tot .84) zijn **voor de schuur gereserveerd**. Geef je eigen toestellen geen vast adres in dat bereik; laat ze een adres van de router krijgen (DHCP) of spreek een eigen reeks af met papa.
 
 Veel toestellen draaien nog in een **testopstelling**: op bordjes in papa's slaapkamer of in de zitplaats, nog niet op hun definitieve plaats. Ze werken wel echt en worden gelogd.
 
@@ -85,8 +85,8 @@ Veel toestellen draaien nog in een **testopstelling**: op bordjes in papa's slaa
 | 192.168.0.70 | **HVAC** | Verwarmingskringen en ventilatie | Slaapkamer, bord met sensoren en relais |
 | 192.168.0.71 | **ECO-boiler** | Zonneboiler 490 L | Slaapkamer, op een bordje |
 | 192.168.0.73 | **Smart Energy** | Zonnepanelen, net, stroomprijs, Tesla | Slaapkamer, op een bordje |
-| 192.168.0.80 | ROOM **room80** | Kamercontroller, testbord | Slaapkamer, bord met alle sensoren |
-| (adres ingesteld in Smart Energy) | **Tesla bridge** | Aparte ESP32 die via Bluetooth met de Tesla Model 3 praat (laadstatus, laden sturen); gekoppeld met Smart Energy `.73` | Wasplaats, naast de parking en de lader van de Tesla |
+| 192.168.0.80 | ROOM **Eetplaats** (room80) | Kamercontroller, testbord | Slaapkamer, bord met alle sensoren |
+| 192.168.0.134 (`tesla-key-esp32.local`) | **Tesla bridge** | Aparte ESP32 die via Bluetooth met de Tesla Model 3 praat (laadstatus, laden sturen); gekoppeld met Smart Energy `.73` | Wasplaats, naast de parking en de lader van de Tesla |
 
 **Gepland, in volgorde van ombouw** (draaien nu nog op de oude **Photon**-controllers)
 
@@ -98,10 +98,13 @@ Veel toestellen draaien nog in een **testopstelling**: op bordjes in papa's slaa
 | 192.168.0.78 | ROOM **Keuken** | Kamer |
 | 192.168.0.79 | ROOM **Wasplaats** | Kamer |
 | 192.168.0.81 | ROOM **Zitplaats** | Kamer |
-| 192.168.0.82 | **ACCESS** | Buitenverlichting |
-| nog te bepalen | **ACCESS2, ACCESS3** | In de B&B: buitenlichten met PIR-sensoren op de muren **noord** en **oost** |
+| 192.168.0.82 | **ACCESS1** | Buitenverlichting |
+| 192.168.0.83 | **ACCESS2** | B&B: buitenlicht met PIR, muur **noord** |
+| 192.168.0.84 | **ACCESS3** | B&B: buitenlicht met PIR, muur **oost** |
 
-*Misschien niet nodig:* **OUTSIDE** (`192.168.0.72`), een weerstation met zonlichtmeter. Het licht meten kan nu al in elke kamer, dus deze controller vervalt mogelijk.
+ACCESS1, 2 en 3 horen samen (zelfde sketch) en hebben daarom drie opeenvolgende adressen.
+
+*Alleen een idee:* **OUTSIDE** (`192.168.0.72`, gereserveerd): alle buitenmetingen op één plaats, waaronder zonlicht in lux. Niet dringend; licht meten kan nu al in elke kamer.
 
 ## 3. Alles bedienen vanuit Google Home
 

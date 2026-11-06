@@ -7,6 +7,7 @@
 > - **Deze repo heet nu `Zarlardinge-Home-Automation`** (was `ZarlarApp`) en is de **overkoepelende repo**: overzicht van alle controllers in de `README.md`, architectuur in `docs/ARCHITECTUUR.md`, uitleg voor Maarten in `docs/UITLEG_VOOR_MAARTEN.md`.
 > - **ROOM-standaard v1.0** vastgelegd: `ESP32C6_ROOMS/ROOM_STANDAARD.md`. ROOM v3.2 actief op room80.
 > - **Dashboard:** de actieve v6.3 staat nog niet in de repo; de oude v5.9 (met Matter) staat in `old/`.
+> - **IP-plan:** ACCESS1–3 horen samen en krijgen drie opeenvolgende adressen (.82, .83, .84). S-OUTSIDE (.72) is alleen nog een idee; het adres blijft gereserveerd. Tesla-proxy op .134. Plaats van de testopstellingen in §1.2.
 
 
 > **Aanvulling 3 november 2026:**
@@ -84,10 +85,12 @@ Elke controller publiceert enkel zijn `/json` endpoint — het Dashboard doet de
 | **HVAC** | ESP32_HVAC | 192.168.0.70 | 58:8C:81:32:2B:90 | 32-pin clone | v2.0 | 🧪 Testopstelling (kringen met testinstellingen, alle op room80) · zonder Matter |
 | **ECO Boiler** | ESP32_ECO Boiler | 192.168.0.71 | 58:8C:81:32:2B:D4 | 32-pin clone | v2.0 | ✅ Productie · zonder Matter (3 nov, 48 u-test loopt) |
 | **Smart Energy** | ESP32_C6_ENERGY | 192.168.0.73 | — | 32-pin clone | v1.29 | ✅ Actief, incl. Tesla bridge (sep 2026) |
-| **Tesla-proxy** | tesla-key-esp32 | via NVS `t1_host` | — | ESP32-C6 30-pin P4 (4 MB), apart board, niet op het Zarlar shield | — | ✅ BLE-proxy naar Tesla1 (§6.10) |
+| **Tesla-proxy** | tesla-key-esp32 (`tesla-key-esp32.local`) | 192.168.0.134 (in S-ENERGY: NVS `t1_host`) | — | ESP32-C6 30-pin P4 (4 MB), apart board, niet op het Zarlar shield | — | ✅ BLE-proxy naar Tesla1 (§6.10) |
 | **ROOM / Eetplaats** | ESP32_EETPLAATS | 192.168.0.80 | 58:8C:81:32:2F:48 | 32-pin clone | v3.1 | ✅ Zonder Matter (v3.0), landingspagina (v3.1, 48 u-test loopt) |
 | **Zarlar Dashboard** | ESP32_ZARLAR | 192.168.0.60 | A8:42:E3:4B:FA:BC | 32-pin DevKitM-1 | v6.3 | ✅ Matrix 16×16 · zonder Matter · OTA |
 | **RPi Portal** | zarlar-rpi | 192.168.0.50 | — | Raspberry Pi 3B+ | server.js v2.11 | ✅ Actief (Tailscale) · Matter-bridge plugin v0.8 |
+
+**Plaats (testopstelling, nov 2026):** alles draait echt, maar nog niet op de definitieve plaats. RPi en Dashboard: zitplaats. ECO en Smart Energy: elk op een bordje in de slaapkamer. room80: bord met alle sensoren in de slaapkamer. HVAC: bord met sensoren en relais in de slaapkamer. Tesla-proxy: wasplaats, naast de parking en de lader van de Tesla Model 3.
 
 ⚠️ **MAC-wissel HVAC:** experimenteerbord (MAC `58:8C:81:32:29:54`) is ook als HVAC gebruikt.
 Productie-HVAC draait op `58:8C:81:32:2B:90`. Bij twijfel: check MAC in serial boot-output.
@@ -112,14 +115,18 @@ Het Dashboard pollt hun data via een **Cloudflare Worker** die de Particle Cloud
 ### 1.4 Geplande controllers
 | # | Naam | IP | MAC | Functie |
 |---|---|---|---|---|
-| 3 | S-OUTSIDE | 192.168.0.72 | 58:8C:81:32:2F:B0 | Weerstation |
+| 3 | S-OUTSIDE | 192.168.0.72 | 58:8C:81:32:2F:B0 | **Alleen een idee, niet dringend:** alle buitenmetingen centraliseren (o.a. zonlicht in lux). Niet verder uitwerken; het IP blijft gereserveerd. Licht meten kan nu al in elke room |
 | 6 | R-BandB | 192.168.0.75 | 58:8C:81:32:28:8C | Room |
 | 7 | R-BADK | 192.168.0.76 | 58:8C:81:32:2B:80 | Room |
 | 8 | R-INKOM | 192.168.0.77 | 58:8C:81:32:29:3C | Room |
 | 9 | R-KEUKEN | 192.168.0.78 | 58:8C:81:32:2B:AC | Room |
 | 10 | R-WASPL | 192.168.0.79 | 58:8C:81:32:2F:9C | Room |
 | 12 | R-ZITPL | 192.168.0.81 | 58:8C:81:32:2D:14 | Room |
-| 13 | S-ACCESS | 192.168.0.82 | 58:8C:81:32:26:9C | Buitenverlichting/toegang |
+| 13 | ACCESS1 | 192.168.0.82 | 58:8C:81:32:26:9C | Buitenverlichting/toegang (zones W1, W2, S, N1) |
+| — | ACCESS2 | 192.168.0.83 | — | Buitenlicht met PIR, muur **noord** (B&B) |
+| — | ACCESS3 | 192.168.0.84 | — | Buitenlicht met PIR, muur **oost** (B&B) |
+
+**ACCESS1, 2 en 3 horen samen:** zelfde sketch `ESP32_C6_ACCESS`, drie opeenvolgende IP-adressen. De rooms staan in de volgorde van ombouw (B&B eerst, op basis van room80).
 
 ---
 

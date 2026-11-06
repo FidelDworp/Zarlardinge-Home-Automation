@@ -53,7 +53,9 @@ flowchart LR
 | ECO-boiler | 192.168.0.71 | Pomp van de zonnecollector, warmte-inhoud van de boiler | `ESP32C6_ECO-boiler` |
 | Smart Energy | 192.168.0.73 | Zonne-opbrengst, net, EPEX-prijzen, Tesla-laden | `ESP32C6_Smart-Energy` |
 | ROOM | 192.168.0.75–81 | Per kamer: temperatuur, vocht, CO2, beweging, licht, verwarmingsvraag, verlichting | `ESP32C6_ROOMS` |
-| ACCESS | 192.168.0.82 (gepland) | Buitenverlichting per zone | nog te maken |
+| ACCESS1–3 | 192.168.0.82–84 (gepland) | Buitenverlichting per zone; ACCESS2/3 voor de B&B (noord, oost). Horen samen | nog te maken |
+| Tesla-proxy | 192.168.0.134 | BLE-verbinding met de Tesla, aangestuurd via Smart Energy | `ESP32C6_Smart-Energy` |
+| S-OUTSIDE | 192.168.0.72 (gereserveerd) | Alleen een idee: buitenmetingen centraliseren | — |
 | Photon-rooms | via de Particle Cloud | De oude kamercontrollers, tot ze vervangen zijn | `PHOTON_ROOMS` |
 
 Alle controllers hebben een **vast IP-adres** in het thuisnetwerk.
