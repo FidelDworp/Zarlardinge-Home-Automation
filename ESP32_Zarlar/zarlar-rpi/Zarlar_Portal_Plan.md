@@ -115,7 +115,7 @@ cp ~/Downloads/deploy.sh ~/deploy.sh && chmod +x ~/deploy.sh && bash ~/deploy.sh
 192.168.0.70  → ESP32 HVAC v2.0
 192.168.0.71  → ESP32 ECO Boiler v2.0
 192.168.0.73  → ESP32 Smart Energy (S-ENERGY v1.29 + Tesla bridge, zie §11)
-192.168.0.134 → tesla-key-esp32 (BLE-proxy naar Tesla1, host in S-ENERGY NVS; via DHCP, vast adres gepland)
+192.168.0.134 → tesla-key-esp32 (BLE-proxy naar Tesla1, host in S-ENERGY NVS; adres via DHCP, S-ENERGY zoekt hem later op naam via mDNS, Master §6.9)
 192.168.0.80  → ESP32 Room v3.2 (Eetplaats/Testroom)
 192.168.0.75–.81 → Room controllers (in server.js v2.1):
                    .75 B&B · .76 Badkamer · .77 Inkomhal · .78 Keuken
@@ -1218,6 +1218,7 @@ Apple Home ──► Matterbridge (plugin "zarlar") ──► server.js /api/pho
 | R5-WASPL | `33004f000e504b464d323520` | ja |
 | R6-EETPL | `3c0030000a47353138383138` | ja |
 | S-OUTSIDE | `3e003f001447343338333633` | nee |
+| R8-ACCESS | `30002d000747353138383138` | nee (v2.12) |
 | S-HVAC | `290044000147353138383138` | nee |
 
 **Knoppen (26, server.js v2.8):** 16 lampen, 7 schakelaars, 2 dimmers, 1 kleurenlamp.
@@ -1229,13 +1230,14 @@ Apple Home ──► Matterbridge (plugin "zarlar") ──► server.js /api/pho
 | R4-KEUK | Keuken Spots (`spots`) | — | — |
 | R5-WASPL | Wasplaats (`wasplaats`), Toilet/Vestiaire (`toilet`) | — | — |
 | R6-EETPL | Tafel (`tafel`), Bib (`bib`), Buro (`buro`), Bed (`bed`) | — | **Ramen** (dimmer): uit `ramenlowoff`, 1–33 % `ramenlowon`, 34–66 % `ramenmedon`, 67–100 % `ramenhion` |
-| S-OUTSIDE | Terras (`S`), Veldkant (`W2`), Voordeur (`W1`) | Sunlight auto/dag/nacht (`auto`/`day`/`night`, onderling exclusief) | — |
+| R8-ACCESS | Terras (`S`), Veldkant (`W2`), Voordeur (`W1`) — tot v2.11 ten onrechte naar S-OUTSIDE gestuurd (werkte niet), fix v2.12 | — | — |
+| S-OUTSIDE | — | Sunlight auto/dag/nacht (`auto`/`day`/`night`, onderling exclusief) | — |
 | S-HVAC | — | ECO => SCHUUR (`sch`), ECO => WONING (`won`), HVAC Home: aan = `home`, uit = `out` | — |
 
 - De schuif van een dimmer springt na een keuze naar het midden van de stand (33/67/100 %), zodat je ziet wat actief is. De Trap springt naar zuiver wit/rood/groen/blauw.
 - Sunlight blijft drie exclusieve schakelaars: drie standen zonder volgorde passen in geen enkel Apple-type. De actieve stand uitzetten doet niets.
 
-**Versies `server.js` (17/10):** v2.4 knoppen + Particle · v2.5 soort lamp/schakelaar · v2.6 Zomertijd en HVAC als één schakelaar · v2.7 Ramen en Klok als dimmer · v2.8 Trap als kleurenlamp.
+**Versies `server.js` (17/10):** v2.4 knoppen + Particle · v2.5 soort lamp/schakelaar · v2.6 Zomertijd en HVAC als één schakelaar · v2.7 Ramen en Klok als dimmer · v2.8 Trap als kleurenlamp · v2.12 (6/11) buitenlichten naar R8-ACCESS.
 
 ### 16.10 Plugin `matterbridge-zarlar`
 

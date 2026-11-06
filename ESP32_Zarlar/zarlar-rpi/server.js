@@ -1,7 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Zarlar Dashboard Server v2.11 — Raspberry Pi
+// Zarlar Dashboard Server v2.12 — Raspberry Pi
 // Node.js + Express — draait op poort 3000
 //
+// v2.12 (6 nov 2026): FIX buitenlichten in Apple Home
+//   - Terras (S), Veldkant (W2) en Voordeur (W1) stuurden naar de Photon S-OUTSIDE,
+//     die alleen zonlicht meet. Ze gaan nu naar R8-ACCESS (westmuur slaapkamer),
+//     die de buitenlichten zuid en west echt bedient. Knop-id's ongewijzigd.
+//   - R8-ACCESS toegevoegd aan PHOTON_STUUR. Sunlight-knoppen blijven op S-OUTSIDE.
 // v2.11 (3 nov 2026): ECO-boiler (ESP32 .71) naar de RPi-bridge, stap E1 (Portal Plan §16.13)
 //   - ECO_APPLE: één toestel "ECO-boiler" in Apple Home (collector, boiler boven/onder,
 //     vulling %, pomp). Vervangt de eigen Matter-tegels van de ECO (laatste ESP32 met Matter).
@@ -388,6 +393,7 @@ const PHOTON_STUUR = {
   'R5-WASPL':  '33004f000e504b464d323520',
   'R6-EETPL':  '3c0030000a47353138383138',
   'S-OUTSIDE': '3e003f001447343338333633',
+  'R8-ACCESS': '30002d000747353138383138',
   'S-HVAC':    '290044000147353138383138',
 };
 
@@ -422,10 +428,11 @@ const KNOPPEN = [
   { id: 'buro',         naam: 'Buro',              photon: 'R6-EETPL',  tag: 'buro' },
   { id: 'bed',          naam: 'Bed',               photon: 'R6-EETPL',  tag: 'bed' },
   { id: 'ramen',        naam: 'Ramen',             photon: 'R6-EETPL',  soort: 'dimmer', argUit: 'ramenlowoff', niveaus: ['ramenlowon', 'ramenmedon', 'ramenhion'] },
-  // S-OUTSIDE
-  { id: 'terras',       naam: 'Terras',            photon: 'S-OUTSIDE', tag: 'S' },
-  { id: 'veldkant',     naam: 'Veldkant',          photon: 'S-OUTSIDE', tag: 'W2' },
-  { id: 'voordeur',     naam: 'Voordeur',          photon: 'S-OUTSIDE', tag: 'W1' },
+  // R8-ACCESS (buitenlichten zuid en west) — v2.12: was ten onrechte S-OUTSIDE
+  { id: 'terras',       naam: 'Terras',            photon: 'R8-ACCESS', tag: 'S' },
+  { id: 'veldkant',     naam: 'Veldkant',          photon: 'R8-ACCESS', tag: 'W2' },
+  { id: 'voordeur',     naam: 'Voordeur',          photon: 'R8-ACCESS', tag: 'W1' },
+  // S-OUTSIDE (alleen zonlicht)
   { id: 'sun-auto',     naam: 'Sunlight auto',     photon: 'S-OUTSIDE', groep: 'sunlight',       arg: 'auto' },
   { id: 'sun-dag',      naam: 'Sunlight dag',      photon: 'S-OUTSIDE', groep: 'sunlight',       arg: 'day' },
   { id: 'sun-nacht',    naam: 'Sunlight nacht',    photon: 'S-OUTSIDE', groep: 'sunlight',       arg: 'night' },

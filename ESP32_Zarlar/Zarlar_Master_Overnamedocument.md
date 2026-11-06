@@ -88,7 +88,7 @@ Elke controller publiceert enkel zijn `/json` endpoint — het Dashboard doet de
 | **Tesla-proxy** | tesla-key-esp32 (`tesla-key-esp32.local`) | 192.168.0.134 (in S-ENERGY: NVS `t1_host`) | — | ESP32-C6 30-pin P4 (4 MB), apart board, niet op het Zarlar shield | — | ✅ BLE-proxy naar Tesla1 (§6.10) |
 | **ROOM / Eetplaats** | ESP32_EETPLAATS | 192.168.0.80 | 58:8C:81:32:2F:48 | 32-pin clone | v3.1 | ✅ Zonder Matter (v3.0), landingspagina (v3.1, 48 u-test loopt) |
 | **Zarlar Dashboard** | ESP32_ZARLAR | 192.168.0.60 | A8:42:E3:4B:FA:BC | 32-pin DevKitM-1 | v6.3 | ✅ Matrix 16×16 · zonder Matter · OTA |
-| **RPi Portal** | zarlar-rpi | 192.168.0.50 | — | Raspberry Pi 3B+ | server.js v2.11 | ✅ Actief (Tailscale) · Matter-bridge plugin v0.8 |
+| **RPi Portal** | zarlar-rpi | 192.168.0.50 | — | Raspberry Pi 3B+ | server.js v2.12 (6/11: fix buitenlichten, nog te deployen) | ✅ Actief (Tailscale) · Matter-bridge plugin v0.8 |
 
 **Plaats (testopstelling, nov 2026):** alles draait echt, maar nog niet op de definitieve plaats. RPi en Dashboard: zitplaats. ECO en Smart Energy: elk op een bordje in de slaapkamer. room80 (experimenteerbord: een ROOM met alle sensoren): op tafel in de eetplaats tot de testen afgerond zijn. HVAC: bord met sensoren en relais in de slaapkamer. Tesla-proxy: wasplaats, naast de parking en de lader van de Tesla Model 3.
 
@@ -122,11 +122,11 @@ Het Dashboard pollt hun data via een **Cloudflare Worker** die de Particle Cloud
 | 9 | R-KEUKEN | 192.168.0.78 | 58:8C:81:32:2B:AC | Room |
 | 10 | R-WASPL | 192.168.0.79 | 58:8C:81:32:2F:9C | Room |
 | 12 | R-ZITPL | 192.168.0.81 | 58:8C:81:32:2D:14 | Room |
-| 13 | ACCESS1 | 192.168.0.82 | 58:8C:81:32:26:9C | Buitenverlichting met PIR, muren **zuid** en **west** (vervangt de Photon R8-ACCESS op de westmuur in de slaapkamer) |
-| — | ACCESS2 | 192.168.0.83 | — | Buitenlicht met PIR, muur **noord** (B&B) |
-| — | ACCESS3 | 192.168.0.84 | — | Buitenlicht met PIR, muur **oost** (B&B) |
+| 13 | ACCESS1 | 192.168.0.82 | 58:8C:81:32:26:9C | **Nog te ontwerpen.** Buitenverlichting met PIR, muren **zuid** en **west**. Neemt het werk over van de Photon R8-ACCESS (westmuur slaapkamer), die vandaag de buitenlichten Z en W bedient |
+| — | ACCESS2 | 192.168.0.83 | — | Nog te ontwerpen. Buitenlicht met PIR, muur **noord** (B&B) |
+| — | ACCESS3 | 192.168.0.84 | — | Nog te ontwerpen. Buitenlicht met PIR, muur **oost** (B&B) |
 
-**ACCESS1, 2 en 3 horen samen:** zelfde sketch `ESP32_C6_ACCESS`, drie opeenvolgende IP-adressen. Op het Dashboard komen later **alle 4 muren op één rij**, ook al bedienen 3 controllers ze (rij nog te kiezen in v6.3). De rooms staan in de volgorde van ombouw (B&B eerst, op basis van room80).
+**ACCESS1, 2 en 3 horen samen:** zelfde sketch `ESP32_C6_ACCESS`, drie opeenvolgende IP-adressen. De uitgangen N en E (oost) van R8-ACCESS waren gepland, maar verhuizen naar ACCESS2/3 in de B&B. Op het Dashboard komen later **alle 4 muren op één rij**, ook al bedienen 3 controllers ze (rij nog te kiezen in v6.3). De rooms staan in de volgorde van ombouw (B&B eerst, op basis van room80).
 
 ---
 
@@ -780,7 +780,7 @@ v1.29: heap-robuustheid verbeterd (geen `http.getString()`, geen `String` in ser
 | `pw` (piek WON) zodra P1-dongle actief is | Filip | ~2028 |
 | Vaste opslag ophalen via RPi `/api/settings` (nu hardcoded `VAST_CT_KWH` 14,32) | Filip | Open |
 | ntfy.sh push bij piekdrempel (app installeren Filip + Maarten) | Filip + Maarten | Open |
-| **Tesla-proxy vast adres** (nu .134 via DHCP, kan wijzigen). Voorkeur **192.168.0.74** (naast S-ENERGY; in het Dashboard nu de lege plaats `FUT2`). De firmware `0Bu/tesla-key-esp32` heeft geen instelling voor een vast IP en de Telenet-router laat geen reservering toe. Opties: (a) S-ENERGY zoekt de proxy op via mDNS `tesla-key-esp32.local` (sketchwijziging), (b) de proxy-firmware aanpassen (ESP-IDF). Keuze nog te maken | Filip | Open |
+| **Tesla-proxy vindbaar houden** (nu .134 via DHCP, kan wijzigen). Eerst overwogen: vast **192.168.0.74** (naast S-ENERGY; in het Dashboard de lege plaats `FUT2`). Maar de firmware `0Bu/tesla-key-esp32` heeft geen instelling voor een vast IP en de Telenet-router laat geen reservering toe. **Beslist (6/11): optie (a)** — S-ENERGY zoekt de proxy op via mDNS `tesla-key-esp32.local` en onthoudt het laatst gevonden adres; bij een mislukte verbinding opnieuw opzoeken. Geen vast IP nodig, de firmware van de proxy blijft ongewijzigd (updates via de web-installer blijven mogelijk). Afgewezen: (b) de proxy-firmware aanpassen (ESP-IDF). .74 blijft vrij. Sketchwijziging S-ENERGY: eerst plan + GO | Filip | Open |
 | **Tesla1:** dag-/totaaltellers solar→Tesla, `t1_`-keys in `/json` (+ GAS + Dashboard), matrix col 11 rij 2-3 | Filip | Open |
 | **Tesla1 automatische sturing:** beslissing op RPi, uitvoering via `/tesla_cmd` (§6.10) | Filip | Open |
 | Dashboard rij 2 col 11: maandpiek-schaal staat op 10 kW, elders 15 kW (`max_piek`) → afstemmen | Filip | Open |
