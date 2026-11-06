@@ -85,7 +85,7 @@ Veel toestellen draaien nog in een **testopstelling**: op bordjes in papa's slaa
 | 192.168.0.70 | **HVAC** | Verwarmingskringen en ventilatie | Slaapkamer, bord met sensoren en relais |
 | 192.168.0.71 | **ECO-boiler** | Zonneboiler 490 L | Slaapkamer, op een bordje |
 | 192.168.0.73 | **Smart Energy** | Zonnepanelen, net, stroomprijs, Tesla | Slaapkamer, op een bordje |
-| 192.168.0.80 | ROOM **Eetplaats** (room80) | Kamercontroller, testbord | Slaapkamer, bord met alle sensoren |
+| 192.168.0.80 | ROOM **Eetplaats** (room80) | Experimenteerbord: een kamer met alle sensoren | Eetplaats, op tafel (tot de testen klaar zijn) |
 | 192.168.0.134 (`tesla-key-esp32.local`) | **Tesla bridge** | Aparte ESP32 die via Bluetooth met de Tesla Model 3 praat (laadstatus, laden sturen); gekoppeld met Smart Energy `.73` | Wasplaats, naast de parking en de lader van de Tesla |
 
 **Gepland, in volgorde van ombouw** (draaien nu nog op de oude **Photon**-controllers)
@@ -98,7 +98,7 @@ Veel toestellen draaien nog in een **testopstelling**: op bordjes in papa's slaa
 | 192.168.0.78 | ROOM **Keuken** | Kamer |
 | 192.168.0.79 | ROOM **Wasplaats** | Kamer |
 | 192.168.0.81 | ROOM **Zitplaats** | Kamer |
-| 192.168.0.82 | **ACCESS1** | Buitenverlichting |
+| 192.168.0.82 | **ACCESS1** | Buitenlichten met PIR, muren zuid en west (vervangt de Photon in de slaapkamer) |
 | 192.168.0.83 | **ACCESS2** | B&B: buitenlicht met PIR, muur **noord** |
 | 192.168.0.84 | **ACCESS3** | B&B: buitenlicht met PIR, muur **oost** |
 

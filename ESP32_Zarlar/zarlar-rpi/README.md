@@ -10,7 +10,7 @@
 ## SSH verbinden vanuit Mac Terminal
 
 ```bash
-ssh fidel@192.168.0.180    # huidig IP — wijzigt na herstart zonder vast IP
+ssh fidel@192.168.0.50     # vast IP (thuis); van buitenaf via Tailscale
 ```
 Wachtwoord: jouw RPi wachtwoord  
 Je ziet niets terwijl je typt — dat is normaal!

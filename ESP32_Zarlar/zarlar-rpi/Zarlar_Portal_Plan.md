@@ -111,12 +111,12 @@ cp ~/Downloads/deploy.sh ~/deploy.sh && chmod +x ~/deploy.sh && bash ~/deploy.sh
 
 ```
 192.168.0.50  → RPi Zarlar Portal (Node.js poort 3000)
-192.168.0.60  → ESP32 Dashboard v5.9 (bron van waarheid, matrix 16×16)
-192.168.0.70  → ESP32 HVAC v1.19
-192.168.0.71  → ESP32 ECO Boiler v1.23
+192.168.0.60  → ESP32 Dashboard v6.3 (bron van waarheid, matrix 16×16)
+192.168.0.70  → ESP32 HVAC v2.0
+192.168.0.71  → ESP32 ECO Boiler v2.0
 192.168.0.73  → ESP32 Smart Energy (S-ENERGY v1.29 + Tesla bridge, zie §11)
-(LAN)         → tesla-key-esp32 (BLE-proxy naar Tesla1, host in S-ENERGY NVS)
-192.168.0.80  → ESP32 Room v2.24 (Eetplaats/Testroom)
+192.168.0.134 → tesla-key-esp32 (BLE-proxy naar Tesla1, host in S-ENERGY NVS; via DHCP, vast adres gepland)
+192.168.0.80  → ESP32 Room v3.2 (Eetplaats/Testroom)
 192.168.0.75–.81 → Room controllers (in server.js v2.1):
                    .75 B&B · .76 Badkamer · .77 Inkomhal · .78 Keuken
                    .79 Wasplaats · .80 Eetplaats · .81 Zitplaats
