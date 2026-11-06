@@ -1,6 +1,6 @@
 # Thuisautomatisering in Zarlardinge — uitleg voor Maarten
 
-*Voor Maarten, van papa (FiDel) — 6 november 2026*
+*Voor Maarten, van papa (FiDel) — 6 november 2026 (bijgewerkt: Google Home, Tailscale, waarom nog geen Home Assistant)*
 
 Je hebt de ventilatietest gezien: een klein bordje met wifi, een schuifbalk op je gsm, en de ventilatie draait sneller of trager. Dat is precies hoe het hele systeem in de schuur werkt, alleen met meer van die bordjes. Dit document legt uit hoe het in elkaar zit en hoe je zelf kunt beginnen. Je hoeft niets te kennen om te starten.
 
@@ -57,14 +57,55 @@ In de schuur heeft **elke installatie een eigen ESP32**: de verwarming (HVAC), d
 
 - **`/json`** is een webadres op elke controller met al zijn meetwaarden in een kort tekstformaat. Typ in de schuur maar eens `http://192.168.0.71/json` in je browser: je ziet de gegevens van de zonneboiler.
 - **Het Dashboard** is een ESP32 met een bord van 16×16 lampjes. Elke rij is een controller, elke kleur een toestand. Het schrijft ook elke 5 minuten alles weg in een Google Sheet, zodat we grafieken kunnen maken en fouten kunnen terugvinden.
-- **De Raspberry Pi** is een iets grotere computer. Hij toont alles op mooie pagina's en zorgt dat de toestellen in de **Apple Woning-app** op de gsm verschijnen.
+- **De Raspberry Pi** is een iets grotere computer. Hij toont alles op mooie pagina's en zorgt via de **Matter-bridge** dat de toestellen in de **Apple Woning-app** op papa's gsm verschijnen. Dezelfde bridge kan ze ook in **Google Home** zetten (zie §3).
 
 Een paar slimme keuzes die we onderweg leerden:
 - **Elke controller werkt ook alleen.** Valt het netwerk weg, dan blijft de verwarming gewoon regelen.
 - **Controllers sturen zelf niets naar het internet.** Dat vraagt te veel geheugen. Het Dashboard doet het voor hen.
 - **Eén sketch voor alle kamers.** Wat verschilt per kamer (naam, aantal lampen, welke sensoren), stel je in op een webpagina. Zo moet er maar één programma onderhouden worden.
 
-## 3. Jouw ventilatiecontroller als voorbeeld
+## 3. Alles bedienen vanuit Google Home
+
+Papa bedient de schuur vanuit **Apple Home**. Jij wilt hetzelfde, maar dan in **Google Home**. Daarvoor is alles al in huis.
+
+### De Matter-bridge op de Raspberry Pi
+
+**Matter** is een standaard die Apple, Google, Amazon en Samsung samen afspraken. Een toestel dat "Matter spreekt", werkt met al die apps.
+
+Onze ESP32's spreken zelf geen Matter (dat kostte te veel geheugen). Daarom draait op de Raspberry Pi 3B+ in de schuur **Matterbridge**: een programma dat de controllers "vertaalt" naar Matter. Voor Apple Home lijken het dan gewone slimme toestellen.
+
+Het mooie aan Matter: **één bridge mag aan meerdere apps tegelijk gekoppeld zijn** (dat heet *multi-admin*). Dezelfde bridge die nu in papa's Apple Home zit, kan dus ook in **jouw Google Home**. Er hoeft niets dubbel gebouwd te worden.
+
+```
+ [ controllers ] ─ /json ─> [ RPi + Matterbridge ] ─ Matter ─┬─> Apple Home (papa)
+                                                              └─> Google Home (jij)
+```
+
+Wat je nodig hebt:
+- De **Google Home-app** op je gsm.
+- Een **Google-hub** in huis die Matter ondersteunt, bv. een **Nest Mini (2e generatie)**, een **Nest Hub** of een **Google TV Streamer**. Google laat Matter-toestellen alleen via zo'n hub werken. Heb je er al een, dan kost dit niets extra.
+- Een koppelcode: papa maakt die aan vanuit de bridge, jij voegt hem toe in Google Home met *Toestel toevoegen → Matter*.
+
+Goed om te weten: Google Home toont niet elk Matter-type even mooi als Apple Home (een thermostaat of lamp wel, uitzonderlijke dingen soms niet). Dat testen we samen uit.
+
+### Van buitenaf: Tailscale
+
+**Tailscale** is een soort privé-tunnel over het internet. Alle toestellen die op hetzelfde Tailscale-account inloggen, zien elkaar alsof ze thuis op de wifi zitten, waar ze ook zijn. Zo kan papa onderweg de pagina's van de RPi en van elke controller openen.
+
+Jij zit thuis al op hetzelfde wifi-netwerk. Voor toegang **van buiten** installeer je de Tailscale-app op je gsm en log je in op papa's Tailscale (papa geeft je toegang). Dan heb je dezelfde toegang als hij. Céline heeft dit niet nodig.
+
+### Waarom (nog) geen Home Assistant?
+
+Je hoort vaak: "koop een Raspberry Pi 5 en installeer **Home Assistant**". Dat is een sterk programma, maar **voor jou is het nu een omweg**:
+
+- **Het werk is al gedaan.** De Matterbridge op de RPi 3B+ draait en is getest met Apple Home. Google Home is een extra koppeling, geen nieuw systeem.
+- **Geen tweede systeem om te onderhouden.** Met Home Assistant krijg je er een volledig apart systeem bij (updates, back-ups, integraties), naast wat er in de schuur al draait. En om in Google Home te komen, heeft Home Assistant zelf ook weer een Matter-bridge nodig.
+- **Kostprijs.** Een RPi 5 met voeding, behuizing en SSD is al gauw meer dan 100 euro, voor iets wat je vandaag al gratis kunt.
+- **Zelfde manier van werken als de schuur.** Wat je leert over `/json`, de controllers en de bridge, is precies hoe de rest van Zarlar werkt. Zo kunnen we elkaar helpen.
+
+Later, als je veel toestellen van andere merken wilt combineren of ingewikkelde automatisaties wilt maken, kan Home Assistant wél zinvol worden. Dan kijken we samen opnieuw.
+
+## 4. Jouw ventilatiecontroller als voorbeeld
 
 Je ventilatie (Begetube 350 R) heeft een ingang van **0 tot 10 V**: hoe hoger de spanning, hoe harder ze draait.
 
@@ -80,7 +121,9 @@ Een belangrijke eigenaardigheid: **0 V betekent bij deze unit volle kracht.** Da
 
 Alles over deze controller (aansluitingen, pagina's, metingen) staat in de repo [`HVAC_WONING`](https://github.com/FidelDworp/HVAC_WONING).
 
-## 4. Zelf beginnen: een leerpad
+Later kan deze ventilatiecontroller ook in de Matter-bridge, zodat je hem vanuit Google Home bedient.
+
+## 5. Zelf beginnen: een leerpad
 
 Neem gerust je tijd per stap. Elke stap werkt op zich.
 
@@ -107,16 +150,16 @@ Neem gerust je tijd per stap. Elke stap werkt op zich.
 
 **Stap 6 — Verder kijken**
 - Hoe ziet de `/json` van een controller in de schuur eruit? Wat betekenen de sleutels? (Zie de README van die controller.)
-- **Home Assistant** op een Raspberry Pi kan al je slimme toestellen samenbrengen; je ESP32 kan daar later aan gekoppeld worden.
+- Koppel de Matter-bridge aan je **Google Home** en bedien de schuur vanaf je gsm (zie §3).
 
-## 5. Veiligheid
+## 6. Veiligheid
 
 - **Werk alleen met lage spanning** (5 V, 10 V, 12 V). Aan **230 V** komen we niet: dat blijft binnen de toestellen of gaat via gekeurde relais en een elektricien.
 - **Een ESP32-pin verdraagt maximaal 3,3 V.** Een sensor op 5 V kan het bordje kapotmaken. Meet eerst met de multimeter.
 - **Dubbelcheck GND (min) en plus** voor je de voeding aansluit.
 - Twijfel je? Vraag het, of vraag het aan Claude: die kent dit hele systeem.
 
-## 6. Woordenlijst
+## 7. Woordenlijst
 
 | Woord | Betekenis |
 |---|---|
@@ -133,9 +176,13 @@ Neem gerust je tijd per stap. Elke stap werkt op zich.
 | **NVS** | Geheugen in de ESP32 dat instellingen bewaart na een herstart |
 | **Shield** | De print waar de ESP32 op steekt, met connectoren en voeding |
 | **Repo (GitHub)** | Een online map met alle bestanden en de geschiedenis van een project |
-| **Matter / Apple Home** | De standaard waarmee toestellen in de Woning-app van Apple verschijnen |
+| **Matter** | Gemeenschappelijke standaard waarmee toestellen in Apple Home, Google Home en andere apps verschijnen |
+| **Matterbridge** | Programma op de Raspberry Pi dat onze controllers naar Matter vertaalt |
+| **Google-hub** | Een Google-toestel (Nest Mini, Nest Hub, Google TV Streamer) dat Matter-toestellen voor Google Home bedient |
+| **Tailscale** | Privé-tunnel zodat je van buitenaf aan de toestellen thuis kunt |
+| **Home Assistant** | Apart, uitgebreid domoticaprogramma; voor jou nu niet nodig (zie §3) |
 
-## 7. Waar vind je wat?
+## 8. Waar vind je wat?
 
 | Wat | Waar |
 |---|---|
