@@ -74,24 +74,34 @@ De woning en de schuur delen **één wifi-netwerk** achter dezelfde **Telenet-ro
 
 **Afspraak:** de adressen hieronder (192.168.0.50 tot .82) zijn **voor de schuur gereserveerd**. Geef je eigen toestellen geen vast adres in dat bereik; laat ze een adres van de router krijgen (DHCP) of spreek een eigen reeks af met papa.
 
-| IP-adres | Toestel | Wat | Stand (nov 2026) |
-|---|---|---|---|
-| 192.168.0.50 | **RPi** (`:3000` = portaal) | Webpagina's, Matter-bridge (Apple Home), energiebeslissingen | ✅ actief |
-| 192.168.0.60 | **Dashboard** | 16×16 lampjesbord, logt elke 5 min naar Google Sheets | ✅ actief |
-| 192.168.0.70 | **HVAC** | Verwarmingskringen en ventilatie | 🧪 test |
-| 192.168.0.71 | **ECO-boiler** | Zonneboiler 490 L | ✅ actief |
-| 192.168.0.72 | **OUTSIDE** | Weerstation | 📋 gepland |
-| 192.168.0.73 | **Smart Energy** | Zonnepanelen, net, stroomprijs, Tesla | ✅ actief |
-| 192.168.0.75 | ROOM **B&B** | Kamer | 📋 eerste ombouw |
-| 192.168.0.76 | ROOM **Badkamer** | Kamer | 📋 gepland |
-| 192.168.0.77 | ROOM **Inkom** | Kamer | 📋 gepland |
-| 192.168.0.78 | ROOM **Keuken** | Kamer | 📋 gepland |
-| 192.168.0.79 | ROOM **Wasplaats** | Kamer | 📋 gepland |
-| 192.168.0.80 | ROOM **Eetplaats** (room80) | Kamer, testbord | ✅ actief |
-| 192.168.0.81 | ROOM **Zitplaats** | Kamer | 📋 gepland |
-| 192.168.0.82 | **ACCESS** | Buitenverlichting | 📋 gepland |
+Veel toestellen draaien nog in een **testopstelling**: op bordjes in papa's slaapkamer of in de zitplaats, nog niet op hun definitieve plaats. Ze werken wel echt en worden gelogd.
 
-De kamers die nog "gepland" zijn, draaien voorlopig op de oude **Photon**-controllers. Die hebben geen vast adres in deze lijst.
+**Actief (nog in testopstelling)**
+
+| IP-adres | Toestel | Wat | Waar nu |
+|---|---|---|---|
+| 192.168.0.50 | **RPi** (`:3000` = portaal) | Webpagina's, Matter-bridge (Apple Home), energiebeslissingen | Zitplaats |
+| 192.168.0.60 | **Dashboard** | 16×16 lampjesbord, logt elke 5 min naar Google Sheets | Zitplaats |
+| 192.168.0.70 | **HVAC** | Verwarmingskringen en ventilatie | Slaapkamer, bord met sensoren en relais |
+| 192.168.0.71 | **ECO-boiler** | Zonneboiler 490 L | Slaapkamer, op een bordje |
+| 192.168.0.73 | **Smart Energy** | Zonnepanelen, net, stroomprijs, Tesla | Slaapkamer, op een bordje |
+| 192.168.0.80 | ROOM **room80** | Kamercontroller, testbord | Slaapkamer, bord met alle sensoren |
+| (adres ingesteld in Smart Energy) | **Tesla bridge** | Aparte ESP32 die via Bluetooth met de Tesla Model 3 praat (laadstatus, laden sturen); gekoppeld met Smart Energy `.73` | Wasplaats, naast de parking en de lader van de Tesla |
+
+**Gepland, in volgorde van ombouw** (draaien nu nog op de oude **Photon**-controllers)
+
+| IP-adres | Toestel | Wat |
+|---|---|---|
+| 192.168.0.75 | ROOM **B&B** | Eerste ombouw, op basis van de room80-controller en -sketch |
+| 192.168.0.76 | ROOM **Badkamer** | Kamer |
+| 192.168.0.77 | ROOM **Inkom** | Kamer |
+| 192.168.0.78 | ROOM **Keuken** | Kamer |
+| 192.168.0.79 | ROOM **Wasplaats** | Kamer |
+| 192.168.0.81 | ROOM **Zitplaats** | Kamer |
+| 192.168.0.82 | **ACCESS** | Buitenverlichting |
+| nog te bepalen | **ACCESS2, ACCESS3** | In de B&B: buitenlichten met PIR-sensoren op de muren **noord** en **oost** |
+
+*Misschien niet nodig:* **OUTSIDE** (`192.168.0.72`), een weerstation met zonlichtmeter. Het licht meten kan nu al in elke kamer, dus deze controller vervalt mogelijk.
 
 ## 3. Alles bedienen vanuit Google Home
 
