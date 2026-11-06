@@ -6,7 +6,7 @@
 > - **Repo's opgeruimd:** elke sketch staat in een map met dezelfde naam als het `.ino`-bestand, met `partitions.csv` ernaast (rechtstreeks te openen in de Arduino IDE). Vaste indeling per repo: sketchmap, `GoogleScript/`, `docs/`, `old/` (§11.0).
 > - **Deze repo heet nu `Zarlardinge-Home-Automation`** (was `ZarlarApp`) en is de **overkoepelende repo**: overzicht van alle controllers in de `README.md`, architectuur in `docs/ARCHITECTUUR.md`, uitleg voor Maarten in `docs/UITLEG_VOOR_MAARTEN.md`.
 > - **ROOM-standaard v1.0** vastgelegd: `ESP32C6_ROOMS/ROOM_STANDAARD.md`. ROOM v3.2 actief op room80.
-> - **Dashboard:** de actieve v6.3 staat nog niet in de repo; de oude v5.9 (met Matter) staat in `old/`.
+> - **Dashboard:** v6.3 staat sinds 6/11 in de repo; **v6.4** (rij 3 = buitenverlichting) in test. R8-ACCESS geeft sinds 6/11 zijn toestand door (`JSON_status`).
 > - **IP-plan:** ACCESS1–3 horen samen en krijgen drie opeenvolgende adressen (.82, .83, .84). S-OUTSIDE (.72) is alleen nog een idee; het adres blijft gereserveerd. Tesla-proxy op .134. Plaats van de testopstellingen in §1.2.
 
 
@@ -87,7 +87,7 @@ Elke controller publiceert enkel zijn `/json` endpoint — het Dashboard doet de
 | **Smart Energy** | ESP32_C6_ENERGY | 192.168.0.73 | — | 32-pin clone | v1.29 | ✅ Actief, incl. Tesla bridge (sep 2026) |
 | **Tesla-proxy** | tesla-key-esp32 (`tesla-key-esp32.local`) | 192.168.0.134 (in S-ENERGY: NVS `t1_host`) | — | ESP32-C6 30-pin P4 (4 MB), apart board, niet op het Zarlar shield | — | ✅ BLE-proxy naar Tesla1 (§6.10) |
 | **ROOM / Eetplaats** | ESP32_EETPLAATS | 192.168.0.80 | 58:8C:81:32:2F:48 | 32-pin clone | v3.1 | ✅ Zonder Matter (v3.0), landingspagina (v3.1, 48 u-test loopt) |
-| **Zarlar Dashboard** | ESP32_ZARLAR | 192.168.0.60 | A8:42:E3:4B:FA:BC | 32-pin DevKitM-1 | v6.3 | ✅ Matrix 16×16 · zonder Matter · OTA |
+| **Zarlar Dashboard** | ESP32_ZARLAR | 192.168.0.60 | A8:42:E3:4B:FA:BC | 32-pin DevKitM-1 | v6.4 (in test) | ✅ Matrix 16×16 · zonder Matter · OTA |
 | **RPi Portal** | zarlar-rpi | 192.168.0.50 | — | Raspberry Pi 3B+ | server.js v2.12 (6/11: fix buitenlichten) | ✅ Actief (Tailscale) · Matter-bridge plugin v0.8 |
 
 **Plaats (testopstelling, nov 2026):** alles draait echt, maar nog niet op de definitieve plaats. RPi en Dashboard: zitplaats. ECO en Smart Energy: elk op een bordje in de slaapkamer. room80 (experimenteerbord: een ROOM met alle sensoren): op tafel in de eetplaats tot de testen afgerond zijn. HVAC: bord met sensoren en relais in de slaapkamer. Tesla-proxy: wasplaats, naast de parking en de lader van de Tesla Model 3.
@@ -126,7 +126,7 @@ Het Dashboard pollt hun data via een **Cloudflare Worker** die de Particle Cloud
 | — | ACCESS2 | 192.168.0.83 | — | Nog te ontwerpen. Buitenlicht met PIR, muur **noord** (B&B) |
 | — | ACCESS3 | 192.168.0.84 | — | Nog te ontwerpen. Buitenlicht met PIR, muur **oost** (B&B) |
 
-**ACCESS1, 2 en 3 horen samen:** zelfde sketch `ESP32_C6_ACCESS`, drie opeenvolgende IP-adressen. **Open (ACCESS1):** de terraslichten (zone S) gaan niet aan, ook niet met de knop in Apple Home (die sinds `server.js` v2.12 wel naar R8-ACCESS stuurt). Andere oorzaak, nog te onderzoeken. De uitgangen N en E (oost) van R8-ACCESS waren gepland, maar verhuizen naar ACCESS2/3 in de B&B. Op het Dashboard komen later **alle 4 muren op één rij**, ook al bedienen 3 controllers ze (rij nog te kiezen in v6.3). De rooms staan in de volgorde van ombouw (B&B eerst, op basis van room80).
+**ACCESS1, 2 en 3 horen samen:** zelfde sketch `ESP32_C6_ACCESS`, drie opeenvolgende IP-adressen. **Checkpunt (ACCESS1):** volgens de R8-code zet beweging aan W1 ook W2 aan ("tot de W2-PIR hersteld is"), maar het W2-blok zet W2 meteen weer uit zonder eigen beweging; `lw2` bleef 0 bij beweging aan de voordeur (6/11), terwijl FiDel 4 lampen links en rechts van de voordeur ziet branden. Nagaan welke lampen W1 en W2 zijn en of de koppeling werkt. **Open (ACCESS1):** de terraslichten (zone S) gaan niet aan, ook niet met de knop in Apple Home (die sinds `server.js` v2.12 wel naar R8-ACCESS stuurt). Andere oorzaak, nog te onderzoeken. De uitgangen N en E (oost) van R8-ACCESS waren gepland, maar verhuizen naar ACCESS2/3 in de B&B. Op het Dashboard komen later **alle 4 muren op één rij**, ook al bedienen 3 controllers ze (rij nog te kiezen in v6.3). De rooms staan in de volgorde van ombouw (B&B eerst, op basis van room80).
 
 ---
 
@@ -1050,7 +1050,7 @@ Sinds v6.0 **geen Matter meer** op het Dashboard. HOME/UIT (`home_mode_global`, 
 | 0 | S-HVAC | Systeem |
 | 1 | S-ECO | Systeem |
 | **2** | **S-ENERGY** (idx 4) | **Systeem — ✅ Actief** |
-| 3 | S-ACCESS | **Beslist 6/11:** de 4 buitenmuren op één rij, in de volgorde **W · Z · N · O**, 4 kolommen per muur: status controller · PIR · licht · modus (auto/manueel). W en Z van ACCESS1, N van ACCESS2, O van ACCESS3. Tot die er zijn: W en Z uit de Photon R8-ACCESS (via de Worker), N en O dim. Nu nog gereserveerd (dim paars) |
+| 3 | S-ACCESS | **Beslist 6/11:** de 4 buitenmuren op één rij, in de volgorde **W · Z · N · O**, 4 kolommen per muur: status controller · PIR · licht · modus (auto/manueel). W en Z van ACCESS1, N van ACCESS2, O van ACCESS3. Tot die er zijn: W en Z uit de Photon R8-ACCESS (via de Worker), N en O dim. **Gebouwd in v6.4.** Kol 0 W status · 1 PIR W1/W2 · 2 licht W1 Voordeur · 3 licht W2 Veldkant · 4 Z status · 5 PIR S · 6 licht S Terras · 7 vrij · 8 N status (dim) · 12 O status (dim). Status: groen = auto, oranje = manueel, rood = offline. Bijgewerkt om de ±9 min (Photon-rondgang) |
 | 4 | Separator | Amber, "ROOMS" |
 | 5–11 | R-BandB, R-BADK, R-INKOM, R-KEUKEN, R-WASPL, R-EETPL (idx 13), R-ZITPL | Rooms |
 | 12–15 | — | Leeg |
@@ -1113,7 +1113,7 @@ server.onNotFound(cpRedirect);
 
 **Geen OTA-pagina:** het Dashboard heeft geen `/update` (wel een OTA-partitietabel). Flashen kan enkel via de kabel. Kandidaat voor een volgende versie.
 
-**ACCESS-rij (rij 3) nu al tonen** met de gegevens van de Photon R8-ACCESS (muren W en Z), indeling volgens §8.6. Eerst Dashboard v6.3 in de repo zetten, dan plan + GO voor v6.4.
+**ACCESS-rij (rij 3):** gebouwd in v6.4 (6/11), in test. Bron: `JSON_status` van R8-ACCESS (`mw1`, `mw2`, `ms` = beweging laatste 10 min; `lw1`, `lw2`, `ls` = licht; `au` = automatisch).
 
 **Matrix kolommen 6/7 ROOM aanpassen naar bewegingsdetectie:**
 - **Huidige logica:** Col 6/7 tonen PIR beweging ALLEEN als licht aan is (`w>0 AND x>0`)

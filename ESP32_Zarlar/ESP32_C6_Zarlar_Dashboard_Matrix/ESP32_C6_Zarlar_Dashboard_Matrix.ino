@@ -1,5 +1,5 @@
 /* ============================================================
-   Zarlar Dashboard v6.3 (zonder Matter)
+   Zarlar Dashboard v6.4 (zonder Matter)
    ESP32-C6 (32-pin 16MB) @ 192.168.0.60
    Filip Delannoy
 
@@ -31,7 +31,7 @@
      Rij 0  : S-HVAC
      Rij 1  : S-ECO
      Rij 2  : S-ENERGY (idx 4, IP 192.168.0.73)
-     Rij 3  : S-ACCESS  (gereserveerd, dim paars)
+     Rij 3  : S-ACCESS  — de 4 buitenmuren W·Z·N·O (v6.4), bron ACCESS1 (ESP32) of P-Access (Photon R8-ACCESS)
      Rij 4  : Separator (amber)
      Rij 5  : R-BandB
      Rij 6  : R-BADK
@@ -46,6 +46,18 @@
        /matrix_test of Serial commando 'matrix-test'. Pas MATRIX_FLIP_H
        aan als kolommen gespiegeld zijn.
 
+   06nov26        v6.4  RIJ 3 = BUITENVERLICHTING, de 4 muren rondom het huis:
+                          kol 0-3 W  : status · PIR (W1 of W2) · licht W1 Voordeur · licht W2 Veldkant
+                          kol 4-7 Z  : status · PIR S · licht S Terras · vrij
+                          kol 8-11 N : status dim (ACCESS2 nog niet aanwezig)
+                          kol 12-15 O: status dim (ACCESS3 nog niet aanwezig)
+                        - Status: groen = online + automatisch (PIR), oranje = online + manueel,
+                          rood = offline, geel = wacht op eerste poll. PIR paars, licht warm geel.
+                        - Bron: ESP32 S-ACCESS (.82) als die actief is, anders de nieuwe Photon
+                          P-Access (R8-ACCESS, variabele JSON_status via de Worker). P-Access staat
+                          achteraan in de controllerlijst (idx 22): bestaande indexen ongewijzigd.
+                          Niet naar Google Sheets. NUM_CONTROLLERS 22 → 23.
+                        - Testpatroon: rij 2 heette nog OUTSIDE → ENERGY (alleen het label).
    01nov26        v6.3  Kleuren volgens de gedrukte legende + rust zachter:
                         - rustPx(): eigen, lager niveau MAT_RUST_NIVEAU (3/255, 0 = uit),
                           los van de ondergrens voor actieve leds (MAT_MIN_ZICHTBAAR 7).
@@ -179,7 +191,7 @@
 // ⚠️ Verplicht voor ESP32-C6 (RISC-V) — vóór alle #include statements
 #define Serial Serial0
 
-#define DASH_VERSION "6.3"
+#define DASH_VERSION "6.4"
 
 #include <WiFi.h>
 #include <esp_wifi.h>
@@ -229,7 +241,7 @@ struct Controller {
 // ============================================================
 // CONTROLLER TABEL
 // ============================================================
-#define NUM_CONTROLLERS 22
+#define NUM_CONTROLLERS 23   // v6.4: + P-Access (idx 22)
 
 Controller controllers[NUM_CONTROLLERS] = {
   {"S-HVAC",    "192.168.0.70", "", TYPE_SYSTEM, true,  STATUS_PENDING,  "", {}, 0},
@@ -254,7 +266,13 @@ Controller controllers[NUM_CONTROLLERS] = {
   {"P-Eetpl",   "", "3c0030000a47353138383138", TYPE_PHOTON, true,  STATUS_PENDING,  "", {}, 0},
   {"P-Zitpl",   "", "200033000547373336323230", TYPE_PHOTON, true,  STATUS_PENDING,  "", {}, 0},
   {"P-TESTROOM","", "200033000547373336323230", TYPE_PHOTON, false, STATUS_INACTIVE, "", {}, 0},
+  {"P-Access",  "", "30002d000747353138383138", TYPE_PHOTON, true,  STATUS_PENDING,  "", {}, 0},  // v6.4: R8-ACCESS
 };
+
+// v6.4: buitenverlichting op matrixrij 3
+#define ACCESS_ROW    3
+#define IDX_S_ACCESS  3    // ESP32 ACCESS1 (.82), later
+#define IDX_P_ACCESS  22   // Photon R8-ACCESS (tot ACCESS1 er is)
 
 // v5.9: hysterese voor Photon-polling — telt opeenvolgende mislukkingen
 // per controller. Pas na PHOTON_FAIL_THRESHOLD mislukkingen op rij wordt
@@ -353,7 +371,7 @@ const MatrixRowDef MROW[MATRIX_HEIGHT] = {
   {  -1,  -1,   0 }, // rij  0: S-HVAC
   {  -1,  -1,   1 }, // rij  1: S-ECO
   {  -1,  -1,   4 }, // rij  2: S-ENERGY (idx 4, IP 192.168.0.73)
-  {  -1,  -1,  -1 }, // rij  3: S-ACCESS  — gereserveerd
+  {  -1,  -1,  -1 }, // rij  3: S-ACCESS  — v6.4: renderAccessRow() (4 muren)
   {  -1,  -1,  -2 }, // rij  4: separator
   {   6,  14,  -1 }, // rij  5: R-BandB  / P-BandB
   {   7,  15,  -1 }, // rij  6: R-BADK   / P-Badkamer
@@ -1060,6 +1078,47 @@ void renderPhotonRow(int row, int ci) {
 }
 
 // ============================================================
+// MATRIX — ACCESS rij renderer (v6.4): de 4 buitenmuren W·Z·N·O
+// Keys (JSON_status van R8-ACCESS): mw1/mw2/ms = beweging laatste 10 min,
+// lw1/lw2/ls = licht aan, au = automatisch (PIR).
+// ============================================================
+void accessStatusPx(int row, int col, int ci, bool online, const char* j) {
+  if (!online)           statusPx(row, col, controllers[ci].status);   // rood / geel
+  else if (jI(j, "au", 1)) matPx(row, col, 0,   200, 0);                // automatisch
+  else                   matPx(row, col, 255, 120, 0);                 // manueel
+}
+
+void renderAccessRow(int row) {
+  // N en O: muren zonder controller → alleen een dimme statusled
+  statusPx(row, 8,  STATUS_INACTIVE);
+  statusPx(row, 12, STATUS_INACTIVE);
+
+  int ci = -1;
+  if (controllers[IDX_S_ACCESS].active && strlen(controllers[IDX_S_ACCESS].last_json) > 5) ci = IDX_S_ACCESS;
+  else if (controllers[IDX_P_ACCESS].active) ci = IDX_P_ACCESS;
+  if (ci < 0) {                                   // geen bron actief
+    statusPx(row, 0, STATUS_INACTIVE);
+    statusPx(row, 4, STATUS_INACTIVE);
+    return;
+  }
+
+  const char* j = controllers[ci].last_json;
+  bool online = (controllers[ci].status == STATUS_ONLINE) && strlen(j) > 5;
+
+  // W (kol 0-3) en Z (kol 4-7) worden door dezelfde controller bediend
+  accessStatusPx(row, 0, ci, online, j);
+  accessStatusPx(row, 4, ci, online, j);
+  if (!online) return;
+
+  aanPx(row, 1, jI(j, "mw1") || jI(j, "mw2"), 200, 60, 255);   // PIR W
+  aanPx(row, 2, jI(j, "lw1"), 255, 180, 60);                    // licht W1 Voordeur
+  aanPx(row, 3, jI(j, "lw2"), 255, 180, 60);                    // licht W2 Veldkant
+  aanPx(row, 5, jI(j, "ms"),  200, 60, 255);                    // PIR S
+  aanPx(row, 6, jI(j, "ls"),  255, 180, 60);                    // licht S Terras
+  // kol 7: vrij (uit)
+}
+
+// ============================================================
 // MATRIX — ECO rij renderer (v4.5)
 // v5.2: const char* j i.p.v. const String& j
 // ============================================================
@@ -1262,6 +1321,7 @@ void updateMatrix() {
     const MatrixRowDef& rd = MROW[row];
 
     if (rd.sys_idx == -2) continue;
+    if (row == ACCESS_ROW) { renderAccessRow(row); continue; }   // v6.4
     if (rd.sys_idx == -1 && rd.esp_idx == -1 && rd.photon_idx == -1) continue;
     if (rd.sys_idx >= 0) {
       if (!controllers[rd.sys_idx].active) continue;
@@ -1365,7 +1425,7 @@ void matrixTestPattern() {
   const uint8_t rowcols[12][3] = {
     {200, 0,   0  }, // rij 0: HVAC → rood
     {200, 80,  0  }, // rij 1: ECO  → oranje
-    {80,  0,   80 }, // rij 2: OUTSIDE → paars
+    {80,  0,   80 }, // rij 2: ENERGY  → paars
     {80,  0,   80 }, // rij 3: ACCESS  → paars
     {60,  30,  0  }, // rij 4: separator → amber
     {0,   200, 0  }, // rij 5: R-BandB → groen

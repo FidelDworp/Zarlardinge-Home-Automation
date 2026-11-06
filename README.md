@@ -19,7 +19,7 @@ Dit is de **overkoepelende repo**: hier begint wie het geheel wil begrijpen. Elk
 
 | Controller | Adres | Repo | Versie | Status |
 |---|---|---|---|---|
-| **Dashboard** (statusmatrix, logging) | 192.168.0.60 | deze repo, [`ESP32_Zarlar/`](ESP32_Zarlar/) | v6.3 | ✅ productie |
+| **Dashboard** (statusmatrix, logging) | 192.168.0.60 | deze repo, [`ESP32_Zarlar/`](ESP32_Zarlar/) | v6.4 (in test) | ✅ productie |
 | **RPi-portaal** + Apple Home-bridge | 192.168.0.50:3000 | deze repo, [`ESP32_Zarlar/zarlar-rpi/`](ESP32_Zarlar/zarlar-rpi/) | server.js v2.12, plugin v0.8 | ✅ productie |
 | **HVAC** (verwarmingskringen, ventilatie) | 192.168.0.70 | [`ESP32C6_HVAC`](https://github.com/FidelDworp/ESP32C6_HVAC) | v2.0 | 🧪 test; de Photon S-HVAC stuurt nog de echte verwarming |
 | **ECO-boiler** (zonneboiler 490 L) | 192.168.0.71 | [`ESP32C6_ECO-boiler`](https://github.com/FidelDworp/ESP32C6_ECO-boiler) | v2.0 | ✅ productie |
