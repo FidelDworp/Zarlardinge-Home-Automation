@@ -1,6 +1,13 @@
 # Zarlar Thuisautomatisering — Master Overnamedocument
 **ESP32-C6 · Arduino IDE · Google Sheets · Node.js · Matter (op RPi) · Tailscale**
-*Filip Delannoy — Zarlardinge (BE) — bijgewerkt 3 november 2026*
+*Filip Delannoy — Zarlardinge (BE) — bijgewerkt 6 november 2026*
+
+> **Aanvulling 6 november 2026:**
+> - **Repo's opgeruimd:** elke sketch staat in een map met dezelfde naam als het `.ino`-bestand, met `partitions.csv` ernaast (rechtstreeks te openen in de Arduino IDE). Vaste indeling per repo: sketchmap, `GoogleScript/`, `docs/`, `old/` (§11.0).
+> - **Deze repo heet nu `Zarlardinge-Home-Automation`** (was `ZarlarApp`) en is de **overkoepelende repo**: overzicht van alle controllers in de `README.md`, architectuur in `docs/ARCHITECTUUR.md`, uitleg voor Maarten in `docs/UITLEG_VOOR_MAARTEN.md`.
+> - **ROOM-standaard v1.0** vastgelegd: `ESP32C6_ROOMS/ROOM_STANDAARD.md`. ROOM v3.2 actief op room80.
+> - **Dashboard:** de actieve v6.3 staat nog niet in de repo; de oude v5.9 (met Matter) staat in `old/`.
+
 
 > **Aanvulling 3 november 2026:**
 > - **Geen enkele ESP32 heeft nog Matter.** ROOM v3.0/v3.1 (room80) en **ECO v2.0** zonder Matter; testwoning "Matter Home" verwijderd. ECO in Apple Home via de RPi: `server.js` v2.11 + plugin v0.8, toestel "ECO-boiler" (Portal Plan §16.13).
@@ -145,7 +152,7 @@ Alle Zarlar-controllers draaien op hetzelfde 32-pin devboard (foto HVAC-controll
 afwijkende pinlabels. Gebruik altijd de pinout uit de controllersecties van dit document.
 
 ### 2.2 Partitietabel (identiek voor ALLE controllers)
-Bestand **`partitions.csv`** (zo staat het in de repo: `ESP32_Zarlar/partitions.csv`) in de schetsmap naast het `.ino`-bestand plaatsen.
+Bestand **`partitions.csv`** (in elke repo naast de sketch, bv. `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/partitions.csv`) in de schetsmap naast het `.ino`-bestand plaatsen.
 Arduino IDE gebruikt een bestand met **exact deze naam** automatisch. Sketch-headers die nog `partitions_16mb.csv` vermelden, zijn op dat punt achterhaald.
 
 | Naam | Type | Offset | Grootte |
@@ -1147,34 +1154,47 @@ De volledige schimmelbeschermingslogica zit in de room controllers — de HVAC i
 ## 11. Bestanden
 
 ### 11.0 GitHub-repo's (één repo per type controller, elk met eigen `README.md`)
-| Repo | Inhoud | README |
-|---|---|---|
-| **`ZarlarApp`** (oude namen `Zarlardinge_Dashboards`, `Zarlar` verwijzen hierheen) | GitHub Pages-dashboards · `ESP32_Zarlar/`: dit document, Dashboard-sketch v6.0, `partitions.csv`, `worker-status.js` · `zarlar-rpi/`: RPi portal + `Zarlar_Portal_Plan.md` | ✅ |
-| `ESP32C6_ROOMS` | `TESTROOM/`: ROOM-sketch v2.24, `ROOM_GoogleScript.gs`, `partitions.csv`, `old/` (v2.8 zonder Matter) | ⬜ te vernieuwen (dec 2025) |
-| `ESP32-HVAC` (oude naam `ESP32C6_HVAC`) | root: **`README.md`** · `Productie/`: HVAC-sketch v2.0 (`ESP32C6_HVAC.ino`), GAS v5, `partitions.csv` · `Old/`: Photon-sketch (nog in productie op S-HVAC), oude niet-Matter-versie, oud GAS | ✅ herschreven 18 okt 2026, naar de root verplaatst 21 okt 2026 |
-| `ESP32C6_ECO-boiler` | `Productie/`: ECO-sketch v1.23 (`ESP32-C6_MATTER_ECO-boiler.ino`), `ECO_GoogleScript.gs` · `S-ECO_SOLAR_Photon/` · `CHANGELOG.md` | ✅ (na te kijken) |
-| `ESP32C6_Smart-Energy` | `Productie/`: S-ENERGY-sketch v1.29 (`ESP32_C6_ENERGY.ino`), `ENERGY_GoogleScript_v1.gs`, `partitions.csv` · `Tesla/TeslaChargeTest.ino` · `Energy_Management_System (Zarlardinge).md`, `Smart_Energy_Zarlardinge (Maarten).md` | ✅ (na te kijken) |
-| Sjalay, … | *nog aan te vullen door FiDel* | ? |
 
-> Regel: per repo één `README.md` (wat, actieve versie, bestanden, verwijzing naar dit document). Dit Master-document blijft de enige systeembrede referentie; kopieën of verwijzingsbestanden in andere repo's (bv. `ESP32-HVAC/Productie/-Zarlar_Overnamedocument.md`) worden vervangen door een link in de README.
+Overzicht met status en IP: `README.md` van **`Zarlardinge-Home-Automation`**. Vaste indeling per controller-repo (sinds 6 nov 2026):
+
+```
+README.md        wat, status, hardware, /json, bestanden, compileren, versies
+<SketchNaam>/    <SketchNaam>.ino (+ .h-bestanden) + partitions.csv
+GoogleScript/    Apps Script voor de Sheet (indien van toepassing)
+docs/            extra documenten
+old/             vorige versies, alleen ter referentie
+```
+
+| Repo | Sketchmap | Versie |
+|---|---|---|
+| **`Zarlardinge-Home-Automation`** (was `ZarlarApp`, `Zarlardinge_Dashboards`) | `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/` · `ESP32_Zarlar/zarlar-rpi/` (RPi) · Photon-webapp (HTML in de root, GitHub Pages) | Dashboard v6.3 (nog te uploaden) |
+| `ESP32C6_ROOMS` | `ESP32_C6_ROOM/` · `ROOM_STANDAARD.md` · `docs/aansluitingen.md` | v3.2 |
+| `ESP32C6_HVAC` | `ESP32C6_HVAC/` · `old/HVAC_Photon.cpp` (nog in productie op S-HVAC) | v2.0 |
+| `ESP32C6_ECO-boiler` | `ESP32-C6_ECO-boiler/` | v2.0 |
+| `ESP32C6_Smart-Energy` | `ESP32_C6_ENERGY/` · `Tesla/TeslaChargeTest/` · `docs/` | v1.29 |
+| `SJALAY-YSERMONDE` | `ESP32-C6_SJALAY_CONTROLLER/` (vakantiewoning Recht) | v1.8 |
+| `HVAC_WONING` | `ESP32_PWM_Test/` (ventilatie woning Maarten, klassieke ESP32) | v1.5 |
+| `PHOTON_ROOMS` | Photon-sketches R1–R8, S-* (nog in productie tot de overstap) | — |
+| `ESP32C6_Experiments` | Testsketches, elk in een eigen map; Matter-simulaties in `old/` | — |
+
+> Regel: per repo één `README.md` (wat, actieve versie, bestanden, verwijzing naar dit document). Dit Master-document blijft de enige systeembrede referentie.
 
 ### 11.1 ESP32 sketches
 | Bestand | Beschrijving |
 |---|---|
-| `ESP32-HVAC/Productie/ESP32C6_HVAC.ino` | HVAC v2.0 (zonder Matter) |
-| `ESP32C6_ECO-boiler/Productie/ESP32-C6_MATTER_ECO-boiler.ino` | ECO Boiler v1.23 productieversie (met Matter, §5.4) |
-| `ESP32C6_ROOMS/TESTROOM/ESP32_C6_ROOM.ino` | **ROOM v2.24** actief (8 mei 2026) — basis voor v3.0 (§7.9) |
-| `ESP32_C6_Zarlar_Dashboard_Matrix.ino` | **Dashboard v6.0** (zonder Matter, in de repo onder `ESP32_Zarlar/`) |
-| `ESP32C6_Smart-Energy/Productie/ESP32_C6_ENERGY.ino` | **Smart Energy v1.29**: Tesla1-bridge + heap-robuustheid (24 sep 2026) |
-| `Oude_MATTER_ROOM_3mar.ino` | Referentie: werkende Matter endpoint-volgorde |
+| `ESP32C6_HVAC/ESP32C6_HVAC/ESP32C6_HVAC.ino` | HVAC v2.0 (zonder Matter) |
+| `ESP32C6_ECO-boiler/ESP32-C6_ECO-boiler/ESP32-C6_ECO-boiler.ino` | ECO Boiler v2.0 (zonder Matter) |
+| `ESP32C6_ROOMS/ESP32_C6_ROOM/ESP32_C6_ROOM.ino` | ROOM v3.2 (zonder Matter, landingspagina, diagnose) |
+| `Zarlardinge-Home-Automation/ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/` | Dashboard v6.3 (zonder Matter) — nog te uploaden |
+| `ESP32C6_Smart-Energy/ESP32_C6_ENERGY/ESP32_C6_ENERGY.ino` | Smart Energy v1.29: Tesla1-bridge + heap-robuustheid (24 sep 2026) |
 
 ### 11.2 Google Apps Scripts
 | Bestand | Beschrijving |
 |---|---|
-| `ESP32-HVAC/Productie/HVAC_GoogleScript.gs` | GAS HVAC **v5** (18 mrt 2026): 32 kolommen A–AF, `MAX_ROWS` (default 1000) |
-| `ECO_GoogleScript_v2.gs` | GAS ECO: 20 kolommen A–T |
-| `ESP32C6_ROOMS/TESTROOM/ROOM_GoogleScript.gs` | GAS ROOM **v1.5** (18 mrt 2026): 37 kolommen A–AK, `MAX_ROWS` (default 1000) |
-| `ENERGY_GoogleScript_v1.gs` | GAS ENERGY: 19 kolommen A–S, sim-vlaggen gelogd |
+| `ESP32C6_HVAC/GoogleScript/HVAC_GoogleScript.gs` | GAS HVAC **v5** (18 mrt 2026): 32 kolommen A–AF, `MAX_ROWS` (default 1000) |
+| `ESP32C6_ECO-boiler/GoogleScript/ECO_GoogleScript.gs` | GAS ECO: 20 kolommen A–T |
+| `ESP32C6_ROOMS/GoogleScript/ROOM_GoogleScript.gs` | GAS ROOM **v1.5** (18 mrt 2026): 37 kolommen A–AK, `MAX_ROWS` (default 1000) |
+| `ESP32C6_Smart-Energy/GoogleScript/ENERGY_GoogleScript_v1.gs` | GAS ENERGY: 19 kolommen A–S, sim-vlaggen gelogd |
 
 ### 11.3 RPi Portal bestanden
 Zie `zarlar-rpi/Zarlar_Portal_Plan.md` §1.2.
@@ -1236,7 +1256,7 @@ Verhuisd naar `Zarlar_Portal_Plan.md` §14.
 
    | Huidig | Na migratie (voorstel) |
    |---|---|
-   | `ZarlarApp/ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard-Matrix_MATTER.ino` (v5.9) | `ESP32_C6_Zarlar_Dashboard_Matrix.ino` (v6.0) |
+   | `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard-Matrix_MATTER.ino` (v5.9, nu in `old/`) | `ESP32_C6_Zarlar_Dashboard_Matrix.ino` (v6.0) |
    | `ESP32-HVAC/Productie/ESP32C6_MATTER_HVAC.ino` | `ESP32C6_HVAC.ino` |
    | `ESP32C6_ROOMS/TESTROOM/ESP32_C6_ROOM.ino` | ongewijzigd (heeft al geen "MATTER" in de naam), v3.0 |
    | `ESP32C6_ECO-boiler/Productie/ESP32-C6_MATTER_ECO-boiler.ino` (v1.23) | `ESP32-C6_ECO-boiler.ino` (v2.0) |

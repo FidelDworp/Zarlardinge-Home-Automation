@@ -40,9 +40,9 @@
 
 ### 1.2 GitHub repository
 
-**Repo:** `FidelDworp/ZarlarApp/ESP32_Zarlar/zarlar-rpi/` (oude naam `Zarlardinge_Dashboards` stuurt door; lokale map op de Mac in `deploy.sh` heet nog `~/Zarlardinge_Dashboards`)
+**Repo:** `FidelDworp/Zarlardinge-Home-Automation/ESP32_Zarlar/zarlar-rpi/` (oude namen `ZarlarApp` en `Zarlardinge_Dashboards` sturen door; lokale map op de Mac in `deploy.sh` heet nog `~/Zarlardinge_Dashboards`)
 
-> ⚠️ Na de hernoeming wijzigt het GitHub Pages-adres naar `fideldworp.github.io/ZarlarApp/`. `public/outside.html` verwijst nog naar `fideldworp.github.io/Zarlardinge_Dashboards/` → nakijken of dat nog laadt.
+> ⚠️ Na de hernoemingen is het GitHub Pages-adres `fideldworp.github.io/Zarlardinge-Home-Automation/` (GitHub Pages stuurt oude namen niet door). `public/outside.html` verwijst nog naar `fideldworp.github.io/Zarlardinge_Dashboards/` → nakijken of dat nog laadt.
 
 ```
 zarlar-rpi/
