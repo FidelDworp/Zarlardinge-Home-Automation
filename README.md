@@ -23,7 +23,7 @@ Dit is de **overkoepelende repo**: hier begint wie het geheel wil begrijpen. Elk
 | **RPi-portaal** + Apple Home-bridge | 192.168.0.50:3000 | deze repo, [`ESP32_Zarlar/zarlar-rpi/`](ESP32_Zarlar/zarlar-rpi/) | server.js v2.12, plugin v0.8 | ✅ productie |
 | **HVAC** (verwarmingskringen, ventilatie) | 192.168.0.70 | [`ESP32C6_HVAC`](https://github.com/FidelDworp/ESP32C6_HVAC) | v2.0 | 🧪 test; de Photon S-HVAC stuurt nog de echte verwarming |
 | **ECO-boiler** (zonneboiler 490 L) | 192.168.0.71 | [`ESP32C6_ECO-boiler`](https://github.com/FidelDworp/ESP32C6_ECO-boiler) | v2.0 | ✅ productie |
-| **Smart Energy** (zon, net, EPEX, Tesla) | 192.168.0.73 | [`ESP32C6_Smart-Energy`](https://github.com/FidelDworp/ESP32C6_Smart-Energy) | v1.29 | ✅ productie |
+| **Smart Energy** (zon, net, EPEX, Tesla) | 192.168.0.73 | [`ESP32C6_Smart-Energy`](https://github.com/FidelDworp/ESP32C6_Smart-Energy) | v1.30 (in test) | ✅ productie |
 | **ROOM** (één sketch voor alle kamers) | 192.168.0.75–81 | [`ESP32C6_ROOMS`](https://github.com/FidelDworp/ESP32C6_ROOMS) | v3.2 | 🔄 room80 (eetplaats) draait, uitrol per kamer volgt |
 | **Photon-rooms** R1–R8 (oud) | via Particle Cloud | [`PHOTON_ROOMS`](https://github.com/FidelDworp/PHOTON_ROOMS) | — | ⏳ nog in productie tot de overstap |
 | **ACCESS1–3** (buitenverlichting, horen samen) | 192.168.0.82–84 (gepland) | nog geen repo | — | 📋 gepland |
