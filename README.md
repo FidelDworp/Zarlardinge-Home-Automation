@@ -26,7 +26,7 @@ Dit is de **overkoepelende repo**: hier begint wie het geheel wil begrijpen. Elk
 | **Smart Energy** (zon, net, EPEX, Tesla) | 192.168.0.73 | [`ESP32C6_Smart-Energy`](https://github.com/FidelDworp/ESP32C6_Smart-Energy) | v1.30 (48 u-test loopt) | ✅ productie |
 | **ROOM** (één sketch voor alle kamers) | 192.168.0.75–81 | [`ESP32C6_ROOMS`](https://github.com/FidelDworp/ESP32C6_ROOMS) | v3.2 | 🔄 room80 (eetplaats) draait, uitrol per kamer volgt |
 | **Photon-rooms** R1–R8 (oud) | via Particle Cloud | [`PHOTON_ROOMS`](https://github.com/FidelDworp/PHOTON_ROOMS) | — | ⏳ nog in productie tot de overstap |
-| **ACCESS1–3** (buitenverlichting, horen samen) | 192.168.0.82–84 (gepland) | nog geen repo | — | 📋 gepland |
+| **ACCESS1–3** (buitenverlichting, horen samen) | 192.168.0.82–84 (gepland) | [`ESP32C6_ACCESS`](https://github.com/FidelDworp/ESP32C6_ACCESS) | — | 📋 nog te ontwerpen; nu Photon R8-ACCESS |
 | **Tesla-proxy** (BLE naar de Tesla, via Smart Energy) | 192.168.0.134 | [`ESP32C6_Smart-Energy`](https://github.com/FidelDworp/ESP32C6_Smart-Energy) (`Tesla/`) | — | ✅ actief |
 | *S-OUTSIDE* (idee: buitenmetingen centraliseren) | 192.168.0.72 (gereserveerd) | — | — | 💡 idee, niet dringend |
 

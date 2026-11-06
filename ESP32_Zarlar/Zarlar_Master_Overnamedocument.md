@@ -1186,6 +1186,7 @@ old/             vorige versies, alleen ter referentie
 | `HVAC_WONING` | `ESP32_PWM_Test/` (ventilatie woning Maarten, klassieke ESP32) | v1.5 |
 | `PHOTON_ROOMS` | Photon-sketches R1–R8, S-* (nog in productie tot de overstap) | — |
 | `ESP32C6_Experiments` | Testsketches, elk in een eigen map; Matter-simulaties in `old/` | — |
+| `ESP32C6_ACCESS` (sinds 6/11) | `ESP32_C6_ACCESS/` (nog te ontwerpen, ACCESS1–3); `old/R8-ACCESS.ino` = laatste Photon-sketch | — |
 
 > Regel: per repo één `README.md` (wat, actieve versie, bestanden, verwijzing naar dit document). Dit Master-document blijft de enige systeembrede referentie.
 
