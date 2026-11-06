@@ -3,7 +3,7 @@
   "version": "0.8.0",
   "description": "Zarlar Photon-knoppen, rooms, HVAC en ECO-boiler in Apple Home via de Zarlar Portal (RPi)",
   "author": "Filip Delannoy",
-  "homepage": "https://github.com/FidelDworp/Zarlardinge_Dashboards",
+  "homepage": "https://github.com/FidelDworp/Zarlardinge-Home-Automation",
   "license": "UNLICENSED",
   "private": true,
   "type": "module",
