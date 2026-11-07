@@ -243,14 +243,67 @@ Voor je ventilatie: board **ESP32 Dev Module**, en de updatepagina is `http://pw
 
 Op de **Raspberry Pi** gaat het anders: daar haalt een klein script (`update.sh`) de nieuwste versie van GitHub. Alles in detail, ook voor de RPi: [`DEPLOY.md`](DEPLOY.md).
 
-## 8. Veiligheid
+## 8. Werken op Windows, een Chromebook of Android
+
+Papa werkt op een Mac, jij op een pc, een Chromebook (Chrome) en een Android-gsm. Bijna alles werkt overal, maar soms net anders.
+
+### Wat overal hetzelfde is
+
+- **GitHub** bekijken en bestanden downloaden: gewoon in de browser (Chrome), ook op je gsm.
+- **Een `.bin` op een controller zetten** (manier A in §7): een gedownload bestand kiezen op `http://<controller>/update`. Dat lukt in elke browser, ook op Android en op een Chromebook.
+- **De webpagina's van de controllers** en het **portaal** (`http://192.168.0.50:3000`) openen.
+- **Google Home** op je Android-gsm, en **Tailscale** (er is een app voor Android, Windows en ChromeOS).
+
+### De Terminal: wat is dat?
+
+De **Terminal** is een venster waarin je commando's typt in plaats van te klikken. Papa gebruikt ze bv. om de RPi bij te werken:
+
+```
+ssh -t fidel@192.168.0.50 'bash ~/update.sh'
+```
+
+`ssh` betekent: maak verbinding met een ander toestel (hier de RPi) en voer daar iets uit.
+
+| Toestel | Waar vind je een terminal? | `ssh` | `git` |
+|---|---|---|---|
+| **Mac** (papa) | app *Terminal* | ingebouwd | ingebouwd |
+| **Windows-pc** | app *Terminal* of *PowerShell* (Startmenu → typ "Terminal") | ingebouwd in Windows 10/11 | eerst *Git for Windows* installeren (git-scm.com); dat geeft ook *Git Bash* |
+| **Chromebook** | *Instellingen → Geavanceerd → Ontwikkelaars → Linux-ontwikkelomgeving* aanzetten; daarna de app *Terminal* | in Linux: `sudo apt install openssh-client` | in Linux: `sudo apt install git` |
+| **Android** | een app, bv. *Termux* (volledige terminal) of *Termius* / *JuiceSSH* (alleen ssh, eenvoudiger) | via de app | in Termux: `pkg install git` |
+
+**Wat verschilt er?**
+- `ssh` en `git` werken overal **op dezelfde manier**: de commando's van papa kun je zo overnemen.
+- **Bestanden kopiëren of mappen openen** heet anders in PowerShell (Windows): `copy` in plaats van `cp`, `dir` in plaats van `ls`. In *Git Bash* en op een Chromebook (Linux) werken de Mac-commando's wel gewoon.
+- **Paden:** op de Mac is je eigen map `~` (bv. `~/Downloads`), op Windows `C:\Users\Maarten\Downloads`.
+- De scripts `update.sh` en `deploy.sh` horen bij de RPi en de Mac van papa: die heb jij niet nodig.
+
+### Sketches compileren en uploaden
+
+| Toestel | Arduino IDE | Uploaden naar een ESP32 |
+|---|---|---|
+| **Windows-pc** | Arduino IDE 2 voor Windows: werkt volledig | via USB (soms eerst een USB-stuurprogramma installeren, bv. "CP210x" voor het bordje van je ventilatie) of via `/update` |
+| **Chromebook** | de *Arduino Cloud Editor* in Chrome kan compileren voor een ESP32, maar **niet uploaden** naar een ESP32 | gebruik de `.bin` uit `bin/` en `/update` (manier A), of installeer de Arduino IDE in de Linux-omgeving (gevorderd) |
+| **Android** | geen | alleen via `/update` met een `.bin` |
+
+**Kort:** om zelf te programmeren gebruik je best de **Windows-pc**. Om een nieuwe versie op een controller te zetten, volstaat elk toestel met een browser.
+
+## 9. Hulp van AI: Gemini of Claude
+
+Je mag elke AI gebruiken om sketches te begrijpen of aan te passen. Wat telt, is dat je de AI **genoeg uitleg** geeft over het project.
+
+- **Context geven:** plak het adres van de repo en vooral de **overdracht** van dat project (`docs/<NAAM>_OVERDRACHT.md`, bv. `docs/HVAC_WONING_OVERDRACHT.md`). Daarin staat kort hoe het in elkaar zit, wat de afspraken zijn en wat nog openstaat. Zo weet elke AI waar je het over hebt.
+- **Gemini** (Google): je gebruikt het al. Plak de inhoud van een sketch of document in het gesprek en stel je vraag.
+- **Claude** (Anthropic): daarmee werkt papa. Het bestaat als website (claude.ai) en als app voor Android, en er is een gratis versie. In de projecten van papa kan Claude zelf zijn repo's lezen en bijwerken, compileren en de `.bin` klaarzetten; daarom zijn alle documenten zo opgebouwd.
+- **Altijd zelf nadenken:** een AI kan zich vergissen. Laat je uitleggen wat een wijziging doet, test eerst op een testbordje, en werk nooit aan 230 V op basis van wat een AI zegt.
+
+## 10. Veiligheid
 
 - **Werk alleen met lage spanning** (5 V, 10 V, 12 V). Aan **230 V** komen we niet: dat blijft binnen de toestellen of gaat via gekeurde relais en een elektricien.
 - **Een ESP32-pin verdraagt maximaal 3,3 V.** Een sensor op 5 V kan het bordje kapotmaken. Meet eerst met de multimeter.
 - **Dubbelcheck GND (min) en plus** voor je de voeding aansluit.
 - Twijfel je? Vraag het, of vraag het aan Claude: die kent dit hele systeem.
 
-## 9. Woordenlijst
+## 11. Woordenlijst
 
 | Woord | Betekenis |
 |---|---|
@@ -266,6 +319,8 @@ Op de **Raspberry Pi** gaat het anders: daar haalt een klein script (`update.sh`
 | **mDNS / `.local`** | Een naam in plaats van een nummer (bv. `pwmtest.local`) |
 | **NVS** | Geheugen in de ESP32 dat instellingen bewaart na een herstart |
 | **Shield** | De print waar de ESP32 op steekt, met connectoren en voeding |
+| **Terminal** | Venster waarin je commando's typt in plaats van te klikken |
+| **ssh** | Commando om verbinding te maken met een ander toestel en er iets uit te voeren |
 | **Fork** | Je eigen kopie van een repo op GitHub, waarin je vrij kunt veranderen |
 | **`.bin`-bestand** | Een gecompileerde sketch, klaar om op een controller te zetten |
 | **Repo (GitHub)** | Een online map met alle bestanden en de geschiedenis van een project |
@@ -275,7 +330,7 @@ Op de **Raspberry Pi** gaat het anders: daar haalt een klein script (`update.sh`
 | **Tailscale** | Privé-tunnel zodat je van buitenaf aan de toestellen thuis kunt |
 | **Home Assistant** | Apart, uitgebreid domoticaprogramma; voor jou nu niet nodig (zie §3) |
 
-## 10. Waar vind je wat?
+## 12. Waar vind je wat?
 
 | Wat | Waar |
 |---|---|
