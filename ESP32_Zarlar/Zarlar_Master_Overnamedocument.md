@@ -6,6 +6,7 @@
 > - **Repo's opgeruimd:** elke sketch staat in een map met dezelfde naam als het `.ino`-bestand, met `partitions.csv` ernaast (rechtstreeks te openen in de Arduino IDE). Vaste indeling per repo: sketchmap, `GoogleScript/`, `docs/`, `old/` (§11.0).
 > - **Deze repo heet nu `Zarlardinge-Home-Automation`** (was `ZarlarApp`) en is de **overkoepelende repo**: overzicht van alle controllers in de `README.md`, architectuur in `docs/ARCHITECTUUR.md`, uitleg voor Maarten in `docs/UITLEG_VOOR_MAARTEN.md`.
 > - **ROOM-standaard v1.0** vastgelegd: `ESP32C6_ROOMS/ROOM_STANDAARD.md`. ROOM v3.2 actief op room80.
+> - **7/11: TSL2561 nooit meer op een room** (ROOM-standaard v1.1), wel op een ACCESS- of OUTSIDE-controller. De ROOM-tabellen verderop (§7) vermelden hem nog als historiek.
 > - **Dashboard:** v6.3 staat sinds 6/11 in de repo; **v6.4** (rij 3 = buitenverlichting) in test. R8-ACCESS geeft sinds 6/11 zijn toestand door (`JSON_status`).
 > - **IP-plan:** ACCESS1–3 horen samen en krijgen drie opeenvolgende adressen (.82, .83, .84). S-OUTSIDE (.72) is alleen nog een idee; het adres blijft gereserveerd. Tesla-proxy op .134. Plaats van de testopstellingen in §1.2.
 
