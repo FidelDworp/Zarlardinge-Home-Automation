@@ -72,6 +72,9 @@ Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als 
 
 ## 5. Praktisch
 
+Uitleg voor iedereen over deployen (ESP32 en RPi): [`DEPLOY.md`](DEPLOY.md).
+
+
 - **Compileren (FiDel):** board ESP32C6 Dev Module, **Flash 16 MB**, Partition Custom (`partitions.csv` in de sketchmap), USB CDC On Boot Enabled. JavaScript altijd in een `.h`-bestand.
 - **OTA:** enkel `<sketch>.ino.bin` uploaden via `http://<ip>/update` (ook het Dashboard, sinds v6.1). De partitietabel kan niet via OTA veranderen.
 - **Compileren in de Claude-sessie** (werkt sinds 7/11): `arduino-cli` 1.3.1 (GitHub-release); index `package_esp32_index.json` van de GitHub-release `espressif/arduino-esp32` 3.3.12, ingekort tot `esp-rv32`, `esp-x32`, `esptool_py`, `esp32c6-libs`, `esp32-libs` en als `file://`-index gebruikt (espressif.github.io en downloads.arduino.cc zijn niet bereikbaar); bibliotheken via `git clone` (ESP32Async/ESPAsyncWebServer + AsyncTCP, bblanchon/ArduinoJson, adafruit DHT + Adafruit_Sensor + NeoPixel + MCP23017 + BusIO + MAX31865, pstolarz/OneWireNg). arduino-cli herkent universal-ctags niet: `runtime.tools.ctags.path` naar een lege `ctags` en de prototypes zelf genereren met universal-ctags in een tijdelijke kopie van de sketch (nooit in de repo). FQBN ESP32-C6: `esp32:esp32:esp32c6:FlashSize=16M,PartitionScheme=custom,CDCOnBoot=cdc`; klassieke ESP32: `esp32:esp32:esp32`.

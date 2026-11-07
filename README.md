@@ -13,6 +13,7 @@ Dit is de **overkoepelende repo**: hier begint wie het geheel wil begrijpen. Elk
 | Het geheel begrijpen in 10 minuten | [`docs/ARCHITECTUUR.md`](docs/ARCHITECTUUR.md) |
 | Leren hoe het werkt en zelf beginnen (voor Maarten) | [`docs/UITLEG_VOOR_MAARTEN.md`](docs/UITLEG_VOOR_MAARTEN.md) |
 | Alle technische details (pinnen, `/json`, regels, versies) | [`docs/Zarlar_Master_Overnamedocument.md`](docs/Zarlar_Master_Overnamedocument.md) |
+| Nieuwe software op een controller of de RPi zetten | [`docs/DEPLOY.md`](docs/DEPLOY.md) |
 | De Raspberry Pi: portaal, Apple Home, energie | [`docs/Zarlar_Portal_Plan.md`](docs/Zarlar_Portal_Plan.md) |
 
 ## Alle controllers
@@ -48,6 +49,7 @@ docs/
   UITLEG_VOOR_MAARTEN.md     uitleg en eerste stappen voor beginners
   Zarlar_Master_Overnamedocument.md   de technische referentie van het hele systeem
   Zarlar_Portal_Plan.md      RPi-portaal, Apple Home-bridge, energie
+  DEPLOY.md                  nieuwe software op een ESP32 of de RPi zetten
   ZARLAR_OVERDRACHT.md       overdracht voor een nieuw gesprek met Claude (werkwijze, stand, open punten)
 ESP32_Zarlar/
   ESP32_C6_Zarlar_Dashboard_Matrix/   sketch van het Dashboard (+ partitions.csv)

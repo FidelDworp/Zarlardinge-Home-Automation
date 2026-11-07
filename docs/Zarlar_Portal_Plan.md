@@ -67,6 +67,8 @@ zarlar-rpi/
 
 ### 1.3 Deploy workflow
 
+> Eenvoudige uitleg van alle manieren (ESP32 en RPi): [`DEPLOY.md`](DEPLOY.md). Sinds 7/11 werkt Claude de bestanden rechtstreeks op GitHub bij; dan volstaat `ssh fidel@192.168.0.50 'bash ~/update.sh'`.
+
 **Alles in één commando op Mac:**
 ```bash
 bash ~/deploy.sh "omschrijving van wijziging"

@@ -198,25 +198,59 @@ Neem gerust je tijd per stap. Elke stap werkt op zich.
 - Open de **Serial Monitor** (115200 baud) om te zien wat de ESP32 vertelt.
 
 **Stap 4 — Een sketch van GitHub openen**
-- Op GitHub: groene knop **Code → Download ZIP**, uitpakken.
-- Open de **map** met dezelfde naam als het `.ino`-bestand (bv. `ESP32_PWM_Test/`). Alles wat de sketch nodig heeft, staat in die map.
+- Haal de repo binnen (zie §6) en open de **map** met dezelfde naam als het `.ino`-bestand (bv. `ESP32_PWM_Test/`). Alles wat de sketch nodig heeft, staat in die map.
 
 **Stap 5 — Iets kleins aanpassen en draadloos uploaden (OTA)**
 - Verander bv. een tekst op de webpagina van je ventilatiesketch.
-- *Sketch → Export Compiled Binary*, dan het bestand `….ino.bin` (niet de andere `.bin`-bestanden) uploaden via de pagina `/update` van de controller. Geen kabel nodig.
+- Zet de nieuwe versie op de controller zonder kabel (zie §7, manier B).
 
 **Stap 6 — Verder kijken**
 - Hoe ziet de `/json` van een controller in de schuur eruit? Wat betekenen de sleutels? (Zie de README van die controller.)
 - Koppel de Matter-bridge aan je **Google Home** en bedien de schuur vanaf je gsm (zie §3).
 
-## 6. Veiligheid
+## 6. Mijn repo's bekijken en gebruiken
+
+Al mijn projecten staan op **GitHub**, op [github.com/FidelDworp](https://github.com/FidelDworp). Elk project is een **repo**: een online map met alle bestanden en de volledige geschiedenis. Ze zijn openbaar: je kunt alles bekijken zonder account.
+
+**Bekijken**
+- Elke repo opent met de **README**: wat het project doet, de stand van zaken, de bestanden. Begin daar.
+- Klik op een map of bestand om het te lezen. Sketches (`.ino`) en documenten (`.md`) toont GitHub meteen.
+- Bij elke map met een sketch staat een **`bin/`**-map met de laatste versie, klaar om op een controller te zetten.
+- In **Commits** (bovenaan de bestandenlijst, met het klokje) zie je wat er wanneer veranderde.
+
+**Downloaden**
+- **Eén bestand:** open het en klik op **Download raw file** (pijltje rechtsboven).
+- **Een hele repo:** groene knop **Code → Download ZIP**, uitpakken. Eenvoudig, maar het is een momentopname: bij een nieuwe versie download je opnieuw.
+- **Altijd de laatste versie:** installeer **GitHub Desktop** (gratis) en kies *Clone repository* met het adres van de repo. Met *Fetch/Pull* haal je later de nieuwste versie op.
+
+**Gebruiken voor je eigen projecten**
+- Neem gerust stukken over: een sketch als vertrekpunt, een webpagina, de manier waarop een sensor gelezen wordt.
+- Werk in **je eigen kopie**, niet in mijn bestanden. Wil je zelf ook op GitHub werken, maak dan een gratis account en klik in mijn repo op **Fork**: je krijgt een eigen kopie waarin je vrij kunt veranderen. Mijn repo blijft ongewijzigd.
+- Pas aan wat voor jouw toestel anders is: naam, WiFi, IP-adres (de meeste controllers laten dat in `/settings` instellen) en de pinnen als je hardware anders is.
+- Tip: geef Claude het adres van een repo en vraag uitleg over een sketch of hulp bij een aanpassing.
+
+## 7. Software op een toestel zetten (deployen)
+
+Kort gezegd zijn er drie manieren om een nieuwe versie op een ESP32 te zetten:
+
+| | Manier | Wanneer |
+|---|---|---|
+| **A** | Het **`.bin`-bestand uit de repo** (map `bin/`) downloaden en uploaden op `http://<controller>/update` | gewone update, geen software nodig, ook vanaf je gsm |
+| **B** | Zelf compileren in de Arduino IDE (*Sketch → Export Compiled Binary*) en het bestand `….ino.bin` uploaden op `/update` | als je zelf iets aanpaste |
+| **C** | Met de **USB-kabel** vanuit de Arduino IDE (*Upload*) | de allereerste keer, of als de controller niet meer opstart |
+
+Voor je ventilatie: board **ESP32 Dev Module**, en de updatepagina is `http://pwmtest.local/update`.
+
+Op de **Raspberry Pi** gaat het anders: daar haalt een klein script (`update.sh`) de nieuwste versie van GitHub. Alles in detail, ook voor de RPi: [`DEPLOY.md`](DEPLOY.md).
+
+## 8. Veiligheid
 
 - **Werk alleen met lage spanning** (5 V, 10 V, 12 V). Aan **230 V** komen we niet: dat blijft binnen de toestellen of gaat via gekeurde relais en een elektricien.
 - **Een ESP32-pin verdraagt maximaal 3,3 V.** Een sensor op 5 V kan het bordje kapotmaken. Meet eerst met de multimeter.
 - **Dubbelcheck GND (min) en plus** voor je de voeding aansluit.
 - Twijfel je? Vraag het, of vraag het aan Claude: die kent dit hele systeem.
 
-## 7. Woordenlijst
+## 9. Woordenlijst
 
 | Woord | Betekenis |
 |---|---|
@@ -232,6 +266,8 @@ Neem gerust je tijd per stap. Elke stap werkt op zich.
 | **mDNS / `.local`** | Een naam in plaats van een nummer (bv. `pwmtest.local`) |
 | **NVS** | Geheugen in de ESP32 dat instellingen bewaart na een herstart |
 | **Shield** | De print waar de ESP32 op steekt, met connectoren en voeding |
+| **Fork** | Je eigen kopie van een repo op GitHub, waarin je vrij kunt veranderen |
+| **`.bin`-bestand** | Een gecompileerde sketch, klaar om op een controller te zetten |
 | **Repo (GitHub)** | Een online map met alle bestanden en de geschiedenis van een project |
 | **Matter** | Gemeenschappelijke standaard waarmee toestellen in Apple Home, Google Home en andere apps verschijnen |
 | **Matterbridge** | Programma op de Raspberry Pi dat onze controllers naar Matter vertaalt |
@@ -239,12 +275,14 @@ Neem gerust je tijd per stap. Elke stap werkt op zich.
 | **Tailscale** | Privé-tunnel zodat je van buitenaf aan de toestellen thuis kunt |
 | **Home Assistant** | Apart, uitgebreid domoticaprogramma; voor jou nu niet nodig (zie §3) |
 
-## 8. Waar vind je wat?
+## 10. Waar vind je wat?
 
 | Wat | Waar |
 |---|---|
 | Overzicht van alles | [`Zarlardinge-Home-Automation`](https://github.com/FidelDworp/Zarlardinge-Home-Automation) (deze repo) |
 | Hoe het geheel in elkaar zit | [`docs/ARCHITECTUUR.md`](ARCHITECTUUR.md) |
+| Software op een toestel zetten | [`docs/DEPLOY.md`](DEPLOY.md) |
+| Al mijn repo's | [github.com/FidelDworp](https://github.com/FidelDworp) |
 | Jouw ventilatie | [`HVAC_WONING`](https://github.com/FidelDworp/HVAC_WONING) |
 | Smart Energy in de woning | [`ESP32C6_Smart-Energy`](https://github.com/FidelDworp/ESP32C6_Smart-Energy), document `docs/Smart_Energy_Zarlardinge_Maarten.md` |
 | Testsketches om mee te oefenen | [`ESP32C6_Experiments`](https://github.com/FidelDworp/ESP32C6_Experiments) |
