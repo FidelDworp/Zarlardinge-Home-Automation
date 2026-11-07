@@ -19,6 +19,7 @@ Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als 
 
 ### GitHub
 
+- **De repo's zijn de enige bron.** De documenten in het claude.ai-project "Room transitions" verwijzen alleen nog naar hier (7/11). **Werk in één gesprek tegelijk per repo**: twee gesprekken in dezelfde repo kunnen botsen.
 - Claude koppelt de repo's van FidelDworp met **schrijfrechten** (`add_repo`, access `push`) en werkt docs, sketches en mappen **rechtstreeks** bij: één commit per stap, vóór het pushen `fetch` + `rebase` (FiDel commit soms zelf tussendoor).
 - **Indeling van elke repo:** `README.md` in de root; **alle andere documenten in `docs/`**; sketchmap `<SketchNaam>/` (ino + `.h` + `partitions.csv`); `GoogleScript/`; `bin/` (laatste gecompileerde `.bin`); `old/`.
 - **Overdracht per repo:** `docs/<NAAM>_OVERDRACHT.md`, bijgewerkt door Claude.
@@ -56,7 +57,7 @@ Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als 
 | `ESP32C6_HVAC` | `docs/HVAC_OVERDRACHT.md` |
 | `ESP32C6_ECO-boiler` | `docs/ECO_OVERDRACHT.md` |
 | `ESP32C6_Smart-Energy` | `docs/ENERGY_OVERDRACHT.md` |
-| `ESP32C6_ACCESS` | `docs/ACCESS_OVERDRACHT.md` |
+| `ESP32C6_ACCESS` | `docs/ACCESS_OVERDRACHT.md` · standaard: `docs/ACCESS_STANDAARD.md` |
 | `SJALAY-YSERMONDE` | `docs/SJALAY_OVERDRACHT.md` |
 | `HVAC_WONING` | `docs/HVAC_WONING_OVERDRACHT.md` |
 | `PHOTON_ROOMS` | `docs/PHOTON_OVERDRACHT.md` |
