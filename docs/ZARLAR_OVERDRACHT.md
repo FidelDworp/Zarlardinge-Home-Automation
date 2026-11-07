@@ -14,6 +14,7 @@ Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als 
 - **Alles via OTA**: updates en diagnose zonder seriële kabel.
 - **`/json`-keys en bedieningsadressen niet wijzigen** zonder uitdrukkelijk akkoord: Dashboard, Portal, RPi-bridge en Google Sheets hangen ervan af.
 - **Bij twijfel over IP's, namen of verschillen tussen documenten: eerst met FiDel bespreken.**
+- **Terminal-commando's:** als FiDel iets op de Mac of de RPi moet uitvoeren, geeft Claude het commando kant-en-klaar om te plakken: in een codeblok, met erbij waar het moet (Terminal van de Mac; de RPi via `ssh` vanaf de Mac) en wat je ongeveer te zien krijgt. FiDel plakt de uitvoer terug als controle.
 - **Docs bijwerken bij elke stap:** README, overdracht, en waar nodig het Master-document en het Portal Plan. Beknopt, geen achterhaalde info.
 
 ### GitHub
