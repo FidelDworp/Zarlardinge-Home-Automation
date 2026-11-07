@@ -67,29 +67,13 @@ zarlar-rpi/
 
 ### 1.3 Deploy workflow
 
-> Eenvoudige uitleg van alle manieren (ESP32 en RPi): [`DEPLOY.md`](DEPLOY.md). Sinds 7/11 werkt Claude de bestanden rechtstreeks op GitHub bij; dan volstaat `ssh fidel@192.168.0.50 'bash ~/update.sh'`.
+Volledige, eenvoudige uitleg: [`DEPLOY.md`](DEPLOY.md). Kort (sinds 7/11/2026):
 
-**Alles in één commando op Mac:**
-```bash
-bash ~/deploy.sh "omschrijving van wijziging"
-```
-
-`deploy.sh` doet automatisch:
-1. Detecteert bestanden in `~/Downloads`
-   - `.html/.css/.js` → `public/`
-   - `.sh/.md` → root van zarlar-rpi/
-2. `git add + commit`
-3. `git pull --rebase` (voorkomt conflicten)
-4. `git push`
-5. SSH naar RPi via Tailscale → `bash ~/update.sh`
-6. Ruimt Downloads op
-
-**Werkt van overal** — thuis én buitenshuis via Tailscale.
-
-**`deploy.sh` zelf updaten op Mac:**
-```bash
-cp ~/Downloads/deploy.sh ~/deploy.sh && chmod +x ~/deploy.sh && bash ~/deploy.sh "..."
-```
+- **Wijziging door Claude op GitHub** (server.js, webpagina's, plugin): `ssh -t fidel@192.168.0.50 'bash ~/update.sh'`. `update.sh` **v2** vergelijkt met wat op de RPi draait: `public/` synchroniseren, `server.js` anders → kopiëren + `systemctl restart zarlar`, `matterbridge-zarlar/` anders → kopiëren naar `/home/fidel/Matterbridge/` + `docker compose restart` in `~/matterbridge`. Werkt zichzelf bij.
+- **Eigen bestanden vanaf de Mac:** in `~/Downloads`, dan `bash ~/deploy.sh "omschrijving"`. `deploy.sh` **v3** kent alleen `server.js`/`update.sh`/`deploy.sh` (root), `.html`/`.css`/`zarlar.js` (`public/`) en de pluginbestanden (ook `matterbridge-zarlar.tar.gz`); haalt eerst GitHub op, commit + push, voert `update.sh` uit op de RPi, ruimt Downloads op. Andere bestanden (ook `.md`) blijven staan. Werkt zichzelf bij.
+- **Documenten** (`docs/`) en **sketches** gaan nooit via deploy: Claude houdt ze op GitHub bij.
+- Werkt overal: thuis en buitenshuis via Tailscale (`100.123.74.113`).
+- **Mac-vereiste:** Terminal niet via Rosetta (`arch` moet `arm64` geven).
 
 ### 1.4 Remote toegang via Tailscale
 
@@ -865,29 +849,15 @@ app.get('/api/matrix', async (req, res) => {
 
 ### 15.3 Deploy workflow — Kritieke regels
 
-**NOOIT doen:**
-- Uitroepteken (`!`) in commit messages → breekt bash
-- Nieuwe server.js maken zonder bestaande te checken
-- Handmatig files kopiëren → gebruik deploy.sh
+Uitleg en commando's: §1.3 en [`DEPLOY.md`](DEPLOY.md).
 
-**WEL doen:**
-```bash
-bash ~/deploy.sh "Beschrijving zonder uitroepteken"
-```
+**NOOIT doen:**
+- Uitroepteken (`!`) in een omschrijving voor `deploy.sh` → breekt bash
+- Nieuwe server.js maken zonder de bestaande te checken
+- Handmatig bestanden op de RPi kopiëren → altijd via GitHub + `update.sh`
+- Documenten of sketches via `deploy.sh` (die laat ze nu toch in Downloads staan)
 
 **Mac-vereiste (16/10/2026):** Terminal mag **niet** via Rosetta draaien. Anders faalt git met een `xcrun ... need 'x86_64'`-fout. Controle: `arch` moet `arm64` geven. Oplossing: Finder → Hulpprogramma's → Terminal → Cmd-I → "Open met Rosetta" uitvinken.
-
-**Welk document via welke weg (7/11/2026):**
-- Dit document en het Master-document staan sinds 7/11 in **`docs/`** van de repo (niet meer in `zarlar-rpi/`). Claude werkt ze rechtstreeks in de repo bij; ze gaan **niet** meer via `deploy.sh`.
-- ⚠️ `deploy.sh` kopieert elk `.md`-bestand uit `~/Downloads` naar `zarlar-rpi/`. Zet dus geen `Zarlar_Portal_Plan.md` of `Zarlar_Master_Overnamedocument.md` meer in Downloads voor een deploy, anders ontstaat er een dubbele kopie in `zarlar-rpi/`.
-- `deploy.sh` doet eerst `git pull --rebase`: wijzigingen van Claude in de repo komen zo vanzelf mee.
-
-**Deploy.sh flow:**
-1. Detecteert files in ~/Downloads
-2. Git add + commit + pull --rebase + push
-3. SSH naar RPi → git pull + rsync public/
-4. Als server.js wijzigt → kopieer + restart zarlar.service
-5. Ruimt Downloads op
 
 **Regressie voorkomen:**
 - Upload HUIDIGE server.js voordat wijzigingen maken
@@ -1263,7 +1233,7 @@ ssh -t fidel@100.123.74.113 'sudo docker exec matterbridge matterbridge -add /ro
 ```
 - `npm link matterbridge` maakt `node_modules/matterbridge` → `/usr/local/lib/node_modules/matterbridge` in de container. Eenmalig; blijft staan bij updates van de plugin.
 
-**Plugin bijwerken:** `.tar.gz` in Downloads (nooit via `deploy.sh`: die zou `module.js` in `public/` zetten). Eerst in de repo:
+**Plugin bijwerken (sinds 7/11/2026):** de plugin staat in de repo; `update.sh` v2 kopieert hem naar Matterbridge en herstart de container als hij op GitHub veranderde. Na een wijziging door Claude volstaat dus `ssh -t fidel@192.168.0.50 'bash ~/update.sh'`; eigen pluginbestanden (of een `.tar.gz`) gaan via `deploy.sh` v3. De oude handmatige werkwijze hieronder blijft als historiek:
 ```
 cd ~/Zarlardinge_Dashboards/ESP32_Zarlar/zarlar-rpi && tar -xzf ~/Downloads/matterbridge-zarlar.tar.gz && git add matterbridge-zarlar && git commit -m "Plugin matterbridge-zarlar vX.Y" && git pull --rebase && git push
 ```

@@ -1,5 +1,7 @@
 # ZARLAR Dashboard — RPi Installatie
 
+> **Bijwerken na de installatie:** `ssh -t fidel@192.168.0.50 'bash ~/update.sh'` zet portaal, webpagina's en Apple Home-plugin gelijk met GitHub. Eigen bestanden vanaf de Mac: `bash ~/deploy.sh "omschrijving"`. Uitleg: [`docs/DEPLOY.md`](../../docs/DEPLOY.md). Hieronder staat de eenmalige installatie.
+
 ## Voorbereiding op je Mac
 
 1. Download alle bestanden uit deze map

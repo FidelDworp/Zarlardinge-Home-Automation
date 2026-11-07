@@ -1,123 +1,119 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────
-# deploy.sh — Zarlar bestanden deployen vanuit Downloads
+# deploy.sh — eigen bestanden uit Downloads naar GitHub én de RPi
 # Gebruik: bash ~/deploy.sh "omschrijving van wijziging"
 #
-# v2 (16 okt 2026): stopt bij elke fout (Rosetta, git commit/pull/push, SSH).
-#   Downloads wordt ALLEEN opgeruimd als alles gelukt is.
-#   Aanleiding: op 16/10 faalde git (xcrun/Rosetta), het script liep door
-#   en verwijderde server.js uit Downloads.
+# Alleen nodig als FiDel ZELF een bestand aanpaste. Wat Claude op GitHub
+# bijwerkt, komt op de RPi met:  ssh -t fidel@192.168.0.50 'bash ~/update.sh'
+#
+# v3 (7 nov 2026):
+#   - Alleen gekende bestanden: server.js · update.sh · deploy.sh (root),
+#     .html/.css en zarlar.js (public/), module.js · package.json ·
+#     matterbridge-zarlar.config.json · matterbridge-zarlar.tar.gz (plugin).
+#     Andere bestanden (ook .md-documenten en sketches) blijven in Downloads
+#     staan en worden gemeld: documenten en sketches onderhoudt Claude op GitHub.
+#   - Eerst de laatste versie van GitHub ophalen, dan pas kopiëren.
+#   - deploy.sh werkt zichzelf bij (geldt vanaf de volgende keer).
+#   - Oude repo-naam in de git-remote wordt vervangen door Zarlardinge-Home-Automation.
+# v2 (16 okt 2026): stopt bij elke fout (Rosetta, git, SSH); Downloads pas
+#   opgeruimd als alles gelukt is.
 # ─────────────────────────────────────────────────────
 
-REPO="$HOME/Zarlardinge_Dashboards/ESP32_Zarlar/zarlar-rpi"
+REPO_ROOT="$HOME/Zarlardinge_Dashboards"
+REPO="$REPO_ROOT/ESP32_Zarlar/zarlar-rpi"
 DOWNLOADS="$HOME/Downloads"
 BERICHT="${1:-update}"
+RPI="fidel@100.123.74.113"     # Tailscale: werkt thuis en buitenshuis
+PLUGIN="matterbridge-zarlar"
 
-# Zarlar bestanden die we herkennen
-PUBLIC_EXT=("html" "css" "js")
-ROOT_FILES=("server.js" "update.sh" "README.md")
-ROOT_EXT=("md" "sh")
+ROOT_FILES=("server.js" "update.sh" "deploy.sh")
+PLUGIN_FILES=("module.js" "package.json" "matterbridge-zarlar.config.json")
+NOOIT_PUBLIC=("worker-status.js" "module.js" "server.js")
 
-# Stoppen met duidelijke melding — Downloads blijft onaangeroerd
 stop() {
   echo "✗ $1"
   echo "  Downloads NIET opgeruimd — je bestanden staan er nog."
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   exit 1
 }
+in_lijst() { local x="$1"; shift; for y in "$@"; do [ "$x" = "$y" ] && return 0; done; return 1; }
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo " Zarlar deploy — $(date '+%d/%m/%Y %H:%M')"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# 0. Terminal mag niet via Rosetta draaien (git faalt dan met xcrun-fout)
+# 0. Controles
 [ "$(arch)" = "i386" ] && stop "Terminal draait via Rosetta (arch = i386). Finder → Hulpprogramma's → Terminal → Cmd-I → 'Open met Rosetta' uitvinken, Terminal herstarten."
+cd "$REPO_ROOT" || stop "Repo niet gevonden: $REPO_ROOT"
+git status >/dev/null 2>&1 || stop "git werkt niet op deze Mac (zie foutmelding hierboven)."
+if git remote get-url origin | grep -qE 'Zarlardinge_Dashboards|ZarlarApp'; then
+  git remote set-url origin https://github.com/FidelDworp/Zarlardinge-Home-Automation.git
+  echo "→ git-remote bijgewerkt naar Zarlardinge-Home-Automation"
+fi
 
-cd "$REPO" || stop "Repo niet gevonden: $REPO"
-git status >/dev/null 2>&1 || stop "git werkt niet op deze Mac (zie foutmelding hierboven)." 
+# 1. Eerst de laatste versie van GitHub
+echo "→ GitHub ophalen..."
+git pull -q --rebase || stop "git pull mislukt (lokale wijzigingen of conflict?). Los op met: cd $REPO_ROOT && git status"
 
-# Houdt bij welke bestanden gekopieerd werden
+# 2. Gekende bestanden uit Downloads naar hun plaats
 GEKOPIEERD=()
-GEVONDEN=false
-
-# 1. Zoek Zarlar bestanden in Downloads
+OVERGESLAGEN=()
 for bestand in "$DOWNLOADS"/*; do
+  [ -f "$bestand" ] || continue
   naam=$(basename "$bestand")
   ext="${naam##*.}"
-
-  # Sla mappen over
-  [ -f "$bestand" ] || continue
-
-  # Controleer of het een bekend Zarlar bestand is
-  IN_ROOT=false
-  IN_PUBLIC=false
-
-  # Root bestanden op naam
-  for root in "${ROOT_FILES[@]}"; do
-    [ "$naam" = "$root" ] && IN_ROOT=true && break
-  done
-
-  # Root bestanden op extensie (.sh, .md)
-  for e in "${ROOT_EXT[@]}"; do
-    [ "$ext" = "$e" ] && IN_ROOT=true && break
-  done
-
-  # Public bestanden op extensie
-  for e in "${PUBLIC_EXT[@]}"; do
-    [ "$ext" = "$e" ] && IN_PUBLIC=true && break
-  done
-
-  # Kopieer naar juiste map
-  if $IN_ROOT; then
-    cp "$bestand" "$REPO/$naam"
-    echo "→ $naam → root/"
-    GEKOPIEERD+=("$bestand")
-    GEVONDEN=true
-  elif $IN_PUBLIC; then
-    cp "$bestand" "$REPO/public/$naam"
-    echo "→ $naam → public/"
-    GEKOPIEERD+=("$bestand")
-    GEVONDEN=true
+  if [ "$naam" = "$PLUGIN.tar.gz" ]; then
+    tar -xzf "$bestand" -C "$REPO" || stop "Uitpakken van $naam mislukt."
+    echo "→ $naam → $PLUGIN/ (uitgepakt)"
+  elif in_lijst "$naam" "${ROOT_FILES[@]}"; then
+    cp "$bestand" "$REPO/$naam"; echo "→ $naam → zarlar-rpi/"
+  elif in_lijst "$naam" "${PLUGIN_FILES[@]}"; then
+    cp "$bestand" "$REPO/$PLUGIN/$naam"; echo "→ $naam → $PLUGIN/"
+  elif { [ "$ext" = "html" ] || [ "$ext" = "css" ] || [ "$naam" = "zarlar.js" ]; } && ! in_lijst "$naam" "${NOOIT_PUBLIC[@]}"; then
+    cp "$bestand" "$REPO/public/$naam"; echo "→ $naam → public/"
+  else
+    case "$ext" in md|ino|h|js|gs|bin) OVERGESLAGEN+=("$naam") ;; esac
+    continue
   fi
+  GEKOPIEERD+=("$bestand")
 done
 
-# Niets gevonden?
-if ! $GEVONDEN; then
-  echo "⚠ Geen Zarlar bestanden gevonden in Downloads"
+for naam in "${OVERGESLAGEN[@]}"; do
+  echo "  (overgeslagen: $naam — geen RPi-bestand; documenten en sketches onderhoudt Claude op GitHub)"
+done
+if [ ${#GEKOPIEERD[@]} -eq 0 ]; then
+  echo "⚠ Geen Zarlar-bestanden gevonden in Downloads."
+  echo "  Alleen de RPi bijwerken met wat op GitHub staat:  ssh -t fidel@192.168.0.50 'bash ~/update.sh'"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   exit 0
 fi
 
-# 2. Rommel opruimen (bestanden die niet in repo horen)
-git rm -f "zarlar-update commands" 2>/dev/null || true
-
-# 3. Git commit
-echo "→ git add + commit..."
-git add . || stop "git add mislukt."
+# 3. Commit en push
+echo "→ git commit + push..."
+git add -A ESP32_Zarlar/zarlar-rpi || stop "git add mislukt."
 if git diff --cached --quiet; then
-  echo "  (geen wijzigingen t.o.v. vorige commit — commit overgeslagen)"
+  echo "  (geen wijzigingen t.o.v. GitHub — commit overgeslagen)"
 else
-  git commit -m "$BERICHT" || stop "git commit mislukt."
+  git commit -q -m "$BERICHT" || stop "git commit mislukt."
+  git push -q || stop "git push mislukt."
 fi
 
-# 4. Git pull --rebase (voorkomt conflict als GitHub verder staat)
-echo "→ git pull (rebase)..."
-git pull --rebase || stop "git pull --rebase mislukt (conflict?). Los op met 'git status' in $REPO, of vraag hulp."
+# 4. RPi bijwerken
+echo "→ RPi bijwerken..."
+ssh -t -o ConnectTimeout=15 "$RPI" 'bash ~/update.sh' \
+  || stop "RPi niet bereikbaar of update.sh faalde. GitHub is wel bijgewerkt: later 'ssh -t fidel@192.168.0.50 \"bash ~/update.sh\"' volstaat."
 
-# 5. Git push
-echo "→ git push..."
-git push || stop "git push mislukt."
+# 5. deploy.sh zelf bijwerken
+if ! cmp -s "$REPO/deploy.sh" "$HOME/deploy.sh"; then
+  # via een kopie + mv: het script dat nu draait, mag niet overschreven worden
+  cp "$REPO/deploy.sh" "$HOME/deploy.sh.nieuw" && chmod +x "$HOME/deploy.sh.nieuw" && mv -f "$HOME/deploy.sh.nieuw" "$HOME/deploy.sh"
+  echo "→ ~/deploy.sh bijgewerkt (geldt vanaf de volgende keer)"
+fi
 
-# 6. RPi bijwerken via Tailscale (werkt overal)
-echo "→ RPi updaten..."
-ssh -o ConnectTimeout=15 fidel@100.123.74.113 'bash /home/fidel/update.sh' \
-  || stop "RPi niet bereikbaar of update.sh faalde. GitHub is wel bijgewerkt: later opnieuw deployen volstaat."
-
-# 7. Downloads opruimen (alleen bereikt als alles gelukt is)
+# 6. Downloads opruimen (alleen als alles gelukt is)
 echo "→ Downloads opruimen..."
 for bestand in "${GEKOPIEERD[@]}"; do
-  rm "$bestand"
-  echo "✓ Verwijderd: $(basename "$bestand")"
+  rm "$bestand" && echo "  ✓ $(basename "$bestand")"
 done
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

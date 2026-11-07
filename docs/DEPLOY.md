@@ -71,35 +71,50 @@ Mislukt de update, dan blijft de oude versie gewoon draaien.
 
 | | Manier | Wanneer |
 |---|---|---|
-| **1** | **`update.sh` op de RPi** | Claude heeft iets aangepast op GitHub (portaal, webpagina's). Dit is nu de gewone weg |
-| **2** | `deploy.sh` op de Mac | je hebt zelf een bestand aangepast en in Downloads gezet |
-| **3** | Plugin-procedure | er is een nieuwe versie van de Apple Home-plugin `matterbridge-zarlar` |
+| **1** | **`update.sh`**: de RPi haalt alles van GitHub | Claude heeft iets aangepast (portaal, webpagina's, Apple Home-plugin). **Dit is de gewone weg** |
+| **2** | **`deploy.sh`** op de Mac | je hebt **zelf** een bestand aangepast en in Downloads gezet |
 
-### 1. `update.sh`: de RPi haalt de laatste versie van GitHub
+Eén commando doet telkens alles: portaal, webpagina's én de Apple Home-plugin.
 
-In de Terminal van de Mac (thuis of via Tailscale):
+### 1. `update.sh`: de RPi gelijkzetten met GitHub
+
+In de Terminal van de Mac:
 
 ```
-ssh fidel@192.168.0.50 'bash ~/update.sh'
+ssh -t fidel@192.168.0.50 'bash ~/update.sh'
 ```
 
-Wat het doet: de RPi haalt de repo op, kopieert de webpagina's (`public/`) naar het portaal en herstart de server als `server.js` veranderde. Van buitenhuis: vervang `192.168.0.50` door het Tailscale-adres van de RPi.
+Van buitenhuis (via Tailscale): `ssh -t fidel@100.123.74.113 'bash ~/update.sh'`.
+
+Wat het doet:
+1. haalt de laatste versie van GitHub op en toont welke wijzigingen erbij kwamen;
+2. kopieert de webpagina's (`public/`) naar het portaal;
+3. **`server.js` anders dan wat draait?** → kopiëren en het portaal herstarten;
+4. **Apple Home-plugin `matterbridge-zarlar` anders?** → kopiëren en Matterbridge herstarten (40 s wachten, daarna een stukje logboek). Blijven nieuwe tegels weg: Keuken Geel Bolleke herstarten;
+5. werkt zichzelf bij als er een nieuwe `update.sh` op GitHub staat.
+
+Je mag het zo vaak uitvoeren als je wilt: als er niets veranderd is, gebeurt er niets. `-t` zorgt ervoor dat de RPi zo nodig om je wachtwoord kan vragen (voor `sudo`).
 
 ### 2. `deploy.sh`: eigen bestanden vanaf de Mac
 
-Alleen als je **zelf** een bestand aanpaste (bv. een webpagina).
+Alleen als je **zelf** iets aanpaste.
 
-1. Zet het bestand in **Downloads** (`server.js`, `.html`, `.css`, `.js`).
+1. Zet het bestand in **Downloads**. Het script herkent:
+   - `server.js`, `update.sh`, `deploy.sh` → `zarlar-rpi/`
+   - `.html`, `.css` en `zarlar.js` → `public/`
+   - `module.js`, `package.json`, `matterbridge-zarlar.config.json` of `matterbridge-zarlar.tar.gz` → de Apple Home-plugin
 2. In de Terminal: `bash ~/deploy.sh "korte omschrijving"`.
-3. Het script zet het bestand op de juiste plaats in de repo, maakt een commit, haalt eerst de laatste versie van GitHub (`git pull --rebase`), pusht, en laat de RPi `update.sh` uitvoeren. Downloads wordt pas opgeruimd als alles gelukt is.
+3. Het script haalt eerst de laatste versie van GitHub, zet je bestanden op hun plaats, maakt een commit, pusht en voert daarna `update.sh` uit op de RPi. Downloads wordt pas opgeruimd als alles gelukt is.
 
-⚠️ **Geen documenten (`.md`) en geen sketches via `deploy.sh`.** De documenten staan in `docs/` en Claude houdt ze op GitHub bij. Een `.md`-bestand in Downloads komt anders als dubbele kopie in `zarlar-rpi/` terecht.
+Andere bestanden (documenten `.md`, sketches, foto's…) laat het script gewoon in Downloads staan: documenten en sketches houdt Claude op GitHub bij.
 
-### 3. De Apple Home-plugin
+### Eenmalig: de nieuwe scripts in gebruik nemen (7/11/2026)
 
-De plugin staat in `ESP32_Zarlar/zarlar-rpi/matterbridge-zarlar/` en draait in de Docker-container van Matterbridge op de RPi. De procedure (tar.gz kopiëren, uitpakken, container herstarten, logboek nakijken) staat in het [Portal Plan](Zarlar_Portal_Plan.md) §16.10.
+`update.sh` v2 en `deploy.sh` v3 werken zichzelf voortaan bij, maar de eerste keer moeten ze één keer gekopieerd worden:
 
----
+- **RPi:** `ssh -t fidel@192.168.0.50 'bash ~/update.sh; cp ~/repo/ESP32_Zarlar/zarlar-rpi/update.sh ~/update.sh && bash ~/update.sh'`
+  (de tweede uitvoering herstart Matterbridge één keer, omdat de plugin op GitHub iets anders is dan op de RPi)
+- **Mac:** `cd ~/Zarlardinge_Dashboards && git pull --rebase && cp ESP32_Zarlar/zarlar-rpi/deploy.sh ~/deploy.sh`
 
 ## 3. Wie doet wat?
 
@@ -107,7 +122,7 @@ De plugin staat in `ESP32_Zarlar/zarlar-rpi/matterbridge-zarlar/` en draait in d
 |---|---|
 | Sketch aanpassen, compileren, `.bin` in `bin/`, documenten bijwerken | Claude, op GitHub, na het akkoord van FiDel |
 | `.bin` op de controller zetten (A) | FiDel |
-| `update.sh` op de RPi uitvoeren | FiDel |
+| `ssh -t fidel@192.168.0.50 'bash ~/update.sh'` na een wijziging van Claude aan het portaal of de plugin | FiDel |
 | 48 uur testen en de Sheet bekijken | FiDel en Claude samen |
 
 Je hoeft dus niets meer naar GitHub te kopiëren: alles staat er al.

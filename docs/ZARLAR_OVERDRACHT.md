@@ -68,7 +68,6 @@ Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als 
 - **Master-document:** §4–§8 bijwerken na de 48 u-tests (o.a. Dashboard v6.1–v6.4, ROOM v3.3).
 - **Master §17 Optimalisatieplan:** opruimversies + mDNS op alle controllers, statuspagina op de RPi, ROOM-uitrol.
 - **Particle-token** staat leesbaar in `ESP32_Zarlar/worker-status.js` (publieke repo): bewust zo gelaten, de Photons verdwijnen.
-- **`deploy.sh`** kopieert elk `.md`-bestand uit `~/Downloads` naar `zarlar-rpi/`: geen documenten meer via deploy (ze staan in `docs/`).
 
 ## 5. Praktisch
 
@@ -78,5 +77,5 @@ Uitleg voor iedereen over deployen (ESP32 en RPi): [`DEPLOY.md`](DEPLOY.md).
 - **Compileren (FiDel):** board ESP32C6 Dev Module, **Flash 16 MB**, Partition Custom (`partitions.csv` in de sketchmap), USB CDC On Boot Enabled. JavaScript altijd in een `.h`-bestand.
 - **OTA:** enkel `<sketch>.ino.bin` uploaden via `http://<ip>/update` (ook het Dashboard, sinds v6.1). De partitietabel kan niet via OTA veranderen.
 - **Compileren in de Claude-sessie** (werkt sinds 7/11): `arduino-cli` 1.3.1 (GitHub-release); index `package_esp32_index.json` van de GitHub-release `espressif/arduino-esp32` 3.3.12, ingekort tot `esp-rv32`, `esp-x32`, `esptool_py`, `esp32c6-libs`, `esp32-libs` en als `file://`-index gebruikt (espressif.github.io en downloads.arduino.cc zijn niet bereikbaar); bibliotheken via `git clone` (ESP32Async/ESPAsyncWebServer + AsyncTCP, bblanchon/ArduinoJson, adafruit DHT + Adafruit_Sensor + NeoPixel + MCP23017 + BusIO + MAX31865, pstolarz/OneWireNg). arduino-cli herkent universal-ctags niet: `runtime.tools.ctags.path` naar een lege `ctags` en de prototypes zelf genereren met universal-ctags in een tijdelijke kopie van de sketch (nooit in de repo). FQBN ESP32-C6: `esp32:esp32:esp32c6:FlashSize=16M,PartitionScheme=custom,CDCOnBoot=cdc`; klassieke ESP32: `esp32:esp32:esp32`.
-- **RPi:** `ssh fidel@192.168.0.50 'bash ~/update.sh'` voor wat al in de repo staat; vanaf de Mac `bash ~/deploy.sh "omschrijving"` (bestanden in `~/Downloads`). Plugin: tar.gz-procedure uit het Portal Plan.
+- **RPi:** `ssh -t fidel@192.168.0.50 'bash ~/update.sh'` zet portaal, webpagina's én Apple Home-plugin gelijk met GitHub (v2, 7/11). Eigen bestanden vanaf de Mac: `bash ~/deploy.sh "omschrijving"` (v3: alleen gekende bestanden uit `~/Downloads`). Details: [`DEPLOY.md`](DEPLOY.md).
 - **Google Apps Script:** "Implementaties beheren → potlood → nieuwe versie", nooit "nieuwe implementatie". Na kolomwijzigingen `setupHeaders()` één keer uitvoeren.
