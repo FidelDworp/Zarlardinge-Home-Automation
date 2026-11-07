@@ -248,6 +248,6 @@ Neem gerust je tijd per stap. Elke stap werkt op zich.
 | Jouw ventilatie | [`HVAC_WONING`](https://github.com/FidelDworp/HVAC_WONING) |
 | Smart Energy in de woning | [`ESP32C6_Smart-Energy`](https://github.com/FidelDworp/ESP32C6_Smart-Energy), document `docs/Smart_Energy_Zarlardinge_Maarten.md` |
 | Testsketches om mee te oefenen | [`ESP32C6_Experiments`](https://github.com/FidelDworp/ESP32C6_Experiments) |
-| Alle technische details | [Master-document](../ESP32_Zarlar/Zarlar_Master_Overnamedocument.md) |
+| Alle technische details | [Master-document](Zarlar_Master_Overnamedocument.md) |
 
 Veel plezier ermee!

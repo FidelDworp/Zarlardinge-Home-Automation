@@ -3,7 +3,7 @@
 
 > **Rolverdeling documenten:**
 > - Dit document: alles op de **RPi** (server, pagina's, deploy, Tailscale, Matter-bridge §16, energiebeslissingen §17, tarieven, afrekening, batterij).
-> - `ESP32_Zarlar/Zarlar_Master_Overnamedocument.md`: systeemoverzicht en alle **ESP32-controllers**.
+> - `docs/Zarlar_Master_Overnamedocument.md`: systeemoverzicht en alle **ESP32-controllers**.
 >
 > **Review 16 oktober 2026.** De punten V1–V4 van 15 okt zijn opgelost op basis van de sketches:
 > - **V1:** S0 op IO5/IO6/IO7, LED op IO4 (§11).
@@ -51,7 +51,6 @@ zarlar-rpi/
 ├── deploy.sh               ← Deploy script (ook actief op Mac als ~/deploy.sh)
 ├── 1-check.sh … 4-static-ip.sh ← Eenmalige installatiescripts
 ├── README.md
-├── Zarlar_Portal_Plan.md   ← Dit document
 └── public/
     ├── index.html          ← Portal NIVO 1 (synoptisch overzicht)
     ├── eco.html            ← ECO Boiler NIVO 2
@@ -876,10 +875,10 @@ bash ~/deploy.sh "Beschrijving zonder uitroepteken"
 
 **Mac-vereiste (16/10/2026):** Terminal mag **niet** via Rosetta draaien. Anders faalt git met een `xcrun ... need 'x86_64'`-fout. Controle: `arch` moet `arm64` geven. Oplossing: Finder → Hulpprogramma's → Terminal → Cmd-I → "Open met Rosetta" uitvinken.
 
-**Welk document via welke weg (17/10/2026):**
-- `Zarlar_Portal_Plan.md` → **alleen via `deploy.sh`**. Nooit via de GitHub-website uploaden: dat gaf op 16/10 een merge-conflict bij de volgende deploy.
-- `Zarlar_Master_Overnamedocument.md` → via de GitHub-website (geen deploy nodig).
-- Bij een conflict toch: `cp ~/Downloads/Zarlar_Portal_Plan.md <repo>/ESP32_Zarlar/zarlar-rpi/` → `git add` → `GIT_EDITOR=true git rebase --continue` → opnieuw `deploy.sh`.
+**Welk document via welke weg (7/11/2026):**
+- Dit document en het Master-document staan sinds 7/11 in **`docs/`** van de repo (niet meer in `zarlar-rpi/`). Claude werkt ze rechtstreeks in de repo bij; ze gaan **niet** meer via `deploy.sh`.
+- ⚠️ `deploy.sh` kopieert elk `.md`-bestand uit `~/Downloads` naar `zarlar-rpi/`. Zet dus geen `Zarlar_Portal_Plan.md` of `Zarlar_Master_Overnamedocument.md` meer in Downloads voor een deploy, anders ontstaat er een dubbele kopie in `zarlar-rpi/`.
+- `deploy.sh` doet eerst `git pull --rebase`: wijzigingen van Claude in de repo komen zo vanzelf mee.
 
 **Deploy.sh flow:**
 1. Detecteert files in ~/Downloads

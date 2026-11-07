@@ -4,6 +4,7 @@
 
 > **Aanvulling 6 november 2026:**
 > - **Repo's opgeruimd:** elke sketch staat in een map met dezelfde naam als het `.ino`-bestand, met `partitions.csv` ernaast (rechtstreeks te openen in de Arduino IDE). Vaste indeling per repo: sketchmap, `GoogleScript/`, `docs/`, `old/` (§11.0).
+> - **7/11: dit document en het Portal Plan staan nu in `docs/`** (afspraak: README in de root, alle andere documenten in `docs/`).
 > - **Deze repo heet nu `Zarlardinge-Home-Automation`** (was `ZarlarApp`) en is de **overkoepelende repo**: overzicht van alle controllers in de `README.md`, architectuur in `docs/ARCHITECTUUR.md`, uitleg voor Maarten in `docs/UITLEG_VOOR_MAARTEN.md`.
 > - **ROOM-standaard v1.0** vastgelegd: `ESP32C6_ROOMS/docs/ROOM_STANDAARD.md`. ROOM v3.2 actief op room80.
 > - **7/11: TSL2561 nooit meer op een room** (ROOM-standaard v1.1), wel op een ACCESS- of OUTSIDE-controller. De ROOM-tabellen verderop (§7) vermelden hem nog als historiek.
@@ -1136,7 +1137,7 @@ De volledige schimmelbeschermingslogica zit in de room controllers — de HVAC i
 
 ## 10. Raspberry Pi Portal — samenvatting
 
-> **Volledig detail:** `zarlar-rpi/Zarlar_Portal_Plan.md`. Dat document is de enige referentie voor alles op de RPi: server, API, pagina's, deploy, Tailscale, Matter-bridge en energiebeslissingen. Hieronder staat alleen wat je nodig hebt om het geheel te begrijpen.
+> **Volledig detail:** `docs/Zarlar_Portal_Plan.md`. Dat document is de enige referentie voor alles op de RPi: server, API, pagina's, deploy, Tailscale, Matter-bridge en energiebeslissingen. Hieronder staat alleen wat je nodig hebt om het geheel te begrijpen.
 
 | Item | Waarde |
 |---|---|
@@ -1209,13 +1210,13 @@ old/             vorige versies, alleen ter referentie
 | `ESP32C6_Smart-Energy/GoogleScript/ENERGY_GoogleScript_v1.gs` | GAS ENERGY: 19 kolommen A–S, sim-vlaggen gelogd |
 
 ### 11.3 RPi Portal bestanden
-Zie `zarlar-rpi/Zarlar_Portal_Plan.md` §1.2.
+Zie `docs/Zarlar_Portal_Plan.md` §1.2.
 
 ### 11.4 Documentatie
 | Bestand | Beschrijving |
 |---|---|
-| `ESP32_Zarlar/Zarlar_Master_Overnamedocument.md` | Dit document: systeem + alle ESP32-controllers |
-| `ESP32_Zarlar/zarlar-rpi/Zarlar_Portal_Plan.md` | RPi portal, Matter-bridge, energie (tarieven, afrekening, batterij) |
+| `docs/Zarlar_Master_Overnamedocument.md` | Dit document: systeem + alle ESP32-controllers |
+| `docs/Zarlar_Portal_Plan.md` | RPi portal, Matter-bridge, energie (tarieven, afrekening, batterij) |
 | `Energy_Management_System_v1_8.md` | Oud werkdocument Smart Energy. Inhoud gaat naar Portal Plan (energie) en §6 (controller). Daarna archiveren. |
 
 ### 11.5 Overige

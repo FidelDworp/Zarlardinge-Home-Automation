@@ -2,7 +2,7 @@
 
 *Bijgewerkt 6 november 2026 — Filip Delannoy (FiDel)*
 
-Dit document legt uit hoe het geheel in elkaar zit: welke toestellen er zijn, hoe ze met elkaar praten en welke afspraken overal gelden. Details per controller (pinnen, `/json`-keys, versies) staan in het [Master-document](../ESP32_Zarlar/Zarlar_Master_Overnamedocument.md) en in de README van elke repo.
+Dit document legt uit hoe het geheel in elkaar zit: welke toestellen er zijn, hoe ze met elkaar praten en welke afspraken overal gelden. Details per controller (pinnen, `/json`-keys, versies) staan in het [Master-document](Zarlar_Master_Overnamedocument.md) en in de README van elke repo.
 
 ---
 

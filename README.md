@@ -12,8 +12,8 @@ Dit is de **overkoepelende repo**: hier begint wie het geheel wil begrijpen. Elk
 |---|---|
 | Het geheel begrijpen in 10 minuten | [`docs/ARCHITECTUUR.md`](docs/ARCHITECTUUR.md) |
 | Leren hoe het werkt en zelf beginnen (voor Maarten) | [`docs/UITLEG_VOOR_MAARTEN.md`](docs/UITLEG_VOOR_MAARTEN.md) |
-| Alle technische details (pinnen, `/json`, regels, versies) | [`ESP32_Zarlar/Zarlar_Master_Overnamedocument.md`](ESP32_Zarlar/Zarlar_Master_Overnamedocument.md) |
-| De Raspberry Pi: portaal, Apple Home, energie | [`ESP32_Zarlar/zarlar-rpi/Zarlar_Portal_Plan.md`](ESP32_Zarlar/zarlar-rpi/Zarlar_Portal_Plan.md) |
+| Alle technische details (pinnen, `/json`, regels, versies) | [`docs/Zarlar_Master_Overnamedocument.md`](docs/Zarlar_Master_Overnamedocument.md) |
+| De Raspberry Pi: portaal, Apple Home, energie | [`docs/Zarlar_Portal_Plan.md`](docs/Zarlar_Portal_Plan.md) |
 
 ## Alle controllers
 
@@ -46,8 +46,9 @@ README.md                    dit overzicht
 docs/
   ARCHITECTUUR.md            hoe het geheel in elkaar zit
   UITLEG_VOOR_MAARTEN.md     uitleg en eerste stappen voor beginners
-ESP32_Zarlar/
   Zarlar_Master_Overnamedocument.md   de technische referentie van het hele systeem
+  Zarlar_Portal_Plan.md      RPi-portaal, Apple Home-bridge, energie
+ESP32_Zarlar/
   ESP32_C6_Zarlar_Dashboard_Matrix/   sketch van het Dashboard (+ partitions.csv)
   zarlar-rpi/                RPi-portaal: server.js, webpagina's, Apple Home-plugin, deploy-scripts
   worker-status.js           Cloudflare Worker (Photon-gegevens zonder token in de browser)
