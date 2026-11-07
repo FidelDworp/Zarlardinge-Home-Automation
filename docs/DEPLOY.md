@@ -108,9 +108,9 @@ Alleen als je **zelf** iets aanpaste.
 
 Andere bestanden (documenten `.md`, sketches, foto's…) laat het script gewoon in Downloads staan: documenten en sketches houdt Claude op GitHub bij.
 
-### Eenmalig: de nieuwe scripts in gebruik nemen (7/11/2026)
+### Eenmalig: de nieuwe scripts in gebruik nemen ✅ gedaan op 7/11/2026
 
-`update.sh` v2 en `deploy.sh` v3 werken zichzelf voortaan bij, maar de eerste keer moeten ze één keer gekopieerd worden:
+Sindsdien werken `update.sh` v2 en `deploy.sh` v3 zichzelf bij. Ter info, zo gebeurde het (alleen opnieuw nodig op een nieuwe Mac of RPi):
 
 - **RPi:** `ssh -t fidel@192.168.0.50 'bash ~/update.sh; cp ~/repo/ESP32_Zarlar/zarlar-rpi/update.sh ~/update.sh && bash ~/update.sh'`
   (de tweede uitvoering herstart Matterbridge één keer, omdat de plugin op GitHub iets anders is dan op de RPi)
