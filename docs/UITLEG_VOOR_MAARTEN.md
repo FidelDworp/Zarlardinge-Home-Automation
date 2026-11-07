@@ -268,7 +268,7 @@ ssh -t fidel@192.168.0.50 'bash ~/update.sh'
 |---|---|---|---|
 | **Mac** (papa) | app *Terminal* | ingebouwd | ingebouwd |
 | **Windows-pc** | app *Terminal* of *PowerShell* (Startmenu → typ "Terminal") | ingebouwd in Windows 10/11 | eerst *Git for Windows* installeren (git-scm.com); dat geeft ook *Git Bash* |
-| **Chromebook** | *Instellingen → Geavanceerd → Ontwikkelaars → Linux-ontwikkelomgeving* aanzetten; daarna de app *Terminal* | in Linux: `sudo apt install openssh-client` | in Linux: `sudo apt install git` |
+| **Chromebook** | *Instellingen → Over ChromeOS → Ontwikkelaars → Linux-ontwikkelomgeving* aanzetten; daarna de app *Terminal* | in Linux: `sudo apt install openssh-client` | in Linux: `sudo apt install git` |
 | **Android** | een app, bv. *Termux* (volledige terminal) of *Termius* / *JuiceSSH* (alleen ssh, eenvoudiger) | via de app | in Termux: `pkg install git` |
 
 **Wat verschilt er?**
