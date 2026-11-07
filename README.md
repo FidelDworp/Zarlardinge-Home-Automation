@@ -48,6 +48,7 @@ docs/
   UITLEG_VOOR_MAARTEN.md     uitleg en eerste stappen voor beginners
   Zarlar_Master_Overnamedocument.md   de technische referentie van het hele systeem
   Zarlar_Portal_Plan.md      RPi-portaal, Apple Home-bridge, energie
+  ZARLAR_OVERDRACHT.md       overdracht voor een nieuw gesprek met Claude (werkwijze, stand, open punten)
 ESP32_Zarlar/
   ESP32_C6_Zarlar_Dashboard_Matrix/   sketch van het Dashboard (+ partitions.csv)
   zarlar-rpi/                RPi-portaal: server.js, webpagina's, Apple Home-plugin, deploy-scripts
