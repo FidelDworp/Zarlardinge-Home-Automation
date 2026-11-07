@@ -26,3 +26,5 @@ De 4 muren rondom het huis, van links naar rechts W · Z · N · O. Bron: de Pho
 Zolang de bron niet online is (pixel 1 en 5 geel of rood), blijven pixels 2–4 en 6–7 uit.
 
 Board en uploaden: zie het Master-document §2.6 en §8.
+
+**Klaar om te uploaden:** `bin/ESP32_C6_Zarlar_Dashboard_Matrix_v6.4.ino.bin` in de root van deze repo, via `http://192.168.0.60/update` (sinds v6.1). Gecompileerd door Claude met ESP32-core 3.3.12 en de nieuwste bibliotheken; alleen de laatste versie.

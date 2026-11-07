@@ -52,6 +52,8 @@ ESP32_Zarlar/
   ESP32_C6_Zarlar_Dashboard_Matrix/   sketch van het Dashboard (+ partitions.csv)
   zarlar-rpi/                RPi-portaal: server.js, webpagina's, Apple Home-plugin, deploy-scripts
   worker-status.js           Cloudflare Worker (Photon-gegevens zonder token in de browser)
+bin/
+  ESP32_C6_Zarlar_Dashboard_Matrix_v6.4.ino.bin   Dashboard, klaar om te uploaden via /update (gecompileerd door Claude)
 *.html, BG.jpg               de oude Photon-webapp (GitHub Pages), wordt nog gebruikt
 old/                         vorige versies, alleen ter referentie
 ```
