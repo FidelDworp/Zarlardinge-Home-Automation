@@ -42,7 +42,7 @@
 
 **Repo:** `FidelDworp/Zarlardinge-Home-Automation/ESP32_Zarlar/zarlar-rpi/` (oude namen `ZarlarApp` en `Zarlardinge_Dashboards` sturen door; lokale map op de Mac in `deploy.sh` heet nog `~/Zarlardinge_Dashboards`)
 
-> GitHub Pages-adres: `fideldworp.github.io/Zarlardinge-Home-Automation/` (GitHub Pages stuurt oude repo-namen niet door). `public/outside.html` en het `homepage`-veld van de plugin zijn op 6/11 aangepast; `outside.html` werkt pas na een deploy naar de RPi.
+> GitHub Pages-adres: `fideldworp.github.io/Zarlardinge-Home-Automation/` (GitHub Pages stuurt oude repo-namen niet door). `public/outside.html` en het `homepage`-veld van de plugin zijn op 6/11 aangepast; sinds 7/11 staat de Photon-webapp in `old_portal/` (dus `…/old_portal/S-OUTSIDE.html`); `outside.html` werkt pas na een deploy naar de RPi.
 
 ```
 zarlar-rpi/

@@ -57,11 +57,11 @@ ESP32_Zarlar/
   worker-status.js           Cloudflare Worker (Photon-gegevens zonder token in de browser)
 bin/
   ESP32_C6_Zarlar_Dashboard_Matrix_v6.4.ino.bin   Dashboard, klaar om te uploaden via /update (gecompileerd door Claude)
-*.html, BG.jpg               de oude Photon-webapp (GitHub Pages), wordt nog gebruikt
+old_portal/                  de oude Photon-webapp (GitHub Pages), wordt nog gebruikt
 old/                         vorige versies, alleen ter referentie
 ```
 
-**Over de HTML-pagina's in de root:** dat is de webapp uit de Photon-tijd, gepubliceerd via GitHub Pages. Ze blijven staan zolang er Photons draaien (het RPi-portaal verwijst bijvoorbeeld naar `S-OUTSIDE.html`). Het Particle-token zit niet in deze bestanden maar in een Cloudflare Worker.
+**Over `old_portal/`:** dat is de webapp uit de Photon-tijd, gepubliceerd via GitHub Pages. Ze blijven staan zolang er Photons draaien (het RPi-portaal verwijst bijvoorbeeld naar `S-OUTSIDE.html`). Het Particle-token zit niet in deze bestanden maar in een Cloudflare Worker.
 
 ## Afspraken voor alle repo's
 

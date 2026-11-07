@@ -1179,7 +1179,7 @@ old/             vorige versies, alleen ter referentie
 
 | Repo | Sketchmap | Versie |
 |---|---|---|
-| **`Zarlardinge-Home-Automation`** (was `ZarlarApp`, `Zarlardinge_Dashboards`) | `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/` · `ESP32_Zarlar/zarlar-rpi/` (RPi) · Photon-webapp (HTML in de root, GitHub Pages) | Dashboard v6.3 (nog te uploaden) |
+| **`Zarlardinge-Home-Automation`** (was `ZarlarApp`, `Zarlardinge_Dashboards`) | `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/` · `ESP32_Zarlar/zarlar-rpi/` (RPi) · Photon-webapp (`old_portal/`, GitHub Pages) | Dashboard v6.3 (nog te uploaden) |
 | `ESP32C6_ROOMS` | `ESP32_C6_ROOM/` · `bin/` · `docs/ROOM_STANDAARD.md` · `docs/ROOMS_OVERDRACHT.md` · `docs/aansluitingen.md` | v3.2 |
 | `ESP32C6_HVAC` | `ESP32C6_HVAC/` · `old/HVAC_Photon.cpp` (nog in productie op S-HVAC) | v2.0 |
 | `ESP32C6_ECO-boiler` | `ESP32-C6_ECO-boiler/` | v2.0 |
