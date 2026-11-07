@@ -5,7 +5,7 @@
 > **Aanvulling 6 november 2026:**
 > - **Repo's opgeruimd:** elke sketch staat in een map met dezelfde naam als het `.ino`-bestand, met `partitions.csv` ernaast (rechtstreeks te openen in de Arduino IDE). Vaste indeling per repo: sketchmap, `GoogleScript/`, `docs/`, `old/` (§11.0).
 > - **Deze repo heet nu `Zarlardinge-Home-Automation`** (was `ZarlarApp`) en is de **overkoepelende repo**: overzicht van alle controllers in de `README.md`, architectuur in `docs/ARCHITECTUUR.md`, uitleg voor Maarten in `docs/UITLEG_VOOR_MAARTEN.md`.
-> - **ROOM-standaard v1.0** vastgelegd: `ESP32C6_ROOMS/ROOM_STANDAARD.md`. ROOM v3.2 actief op room80.
+> - **ROOM-standaard v1.0** vastgelegd: `ESP32C6_ROOMS/docs/ROOM_STANDAARD.md`. ROOM v3.2 actief op room80.
 > - **7/11: TSL2561 nooit meer op een room** (ROOM-standaard v1.1), wel op een ACCESS- of OUTSIDE-controller. De ROOM-tabellen verderop (§7) vermelden hem nog als historiek.
 > - **Dashboard:** v6.3 staat sinds 6/11 in de repo; **v6.4** (rij 3 = buitenverlichting) in test. R8-ACCESS geeft sinds 6/11 zijn toestand door (`JSON_status`).
 > - **IP-plan:** ACCESS1–3 horen samen en krijgen drie opeenvolgende adressen (.82, .83, .84). S-OUTSIDE (.72) is alleen nog een idee; het adres blijft gereserveerd. Tesla-proxy op .134. Plaats van de testopstellingen in §1.2.
@@ -1179,7 +1179,7 @@ old/             vorige versies, alleen ter referentie
 | Repo | Sketchmap | Versie |
 |---|---|---|
 | **`Zarlardinge-Home-Automation`** (was `ZarlarApp`, `Zarlardinge_Dashboards`) | `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/` · `ESP32_Zarlar/zarlar-rpi/` (RPi) · Photon-webapp (HTML in de root, GitHub Pages) | Dashboard v6.3 (nog te uploaden) |
-| `ESP32C6_ROOMS` | `ESP32_C6_ROOM/` · `ROOM_STANDAARD.md` · `docs/aansluitingen.md` | v3.2 |
+| `ESP32C6_ROOMS` | `ESP32_C6_ROOM/` · `bin/` · `docs/ROOM_STANDAARD.md` · `docs/ROOMS_OVERDRACHT.md` · `docs/aansluitingen.md` | v3.2 |
 | `ESP32C6_HVAC` | `ESP32C6_HVAC/` · `old/HVAC_Photon.cpp` (nog in productie op S-HVAC) | v2.0 |
 | `ESP32C6_ECO-boiler` | `ESP32-C6_ECO-boiler/` | v2.0 |
 | `ESP32C6_Smart-Energy` | `ESP32_C6_ENERGY/` · `Tesla/TeslaChargeTest/` · `docs/` | v1.29 |

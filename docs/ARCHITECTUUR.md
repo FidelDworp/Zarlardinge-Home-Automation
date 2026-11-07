@@ -88,7 +88,7 @@ Alle controllers hebben een **vast IP-adres** in het thuisnetwerk.
 
 - **Powerpixel:** eigen ontwerp. Wordt aangestuurd zoals een gewone adresseerbare led, maar schakelt via MOSFET's zware verlichting of RGB-strips.
 - **Gouden regel:** een ESP32-pin krijgt nooit meer dan **3,3 V**.
-- **Kamers:** wat er in elke room zit (en wat bewust niet), staat in de [ROOM-standaard](https://github.com/FidelDworp/ESP32C6_ROOMS/blob/main/ROOM_STANDAARD.md).
+- **Kamers:** wat er in elke room zit (en wat bewust niet), staat in de [ROOM-standaard](https://github.com/FidelDworp/ESP32C6_ROOMS/blob/main/docs/ROOM_STANDAARD.md).
 
 ## 6. Gemeenschappelijke software
 
@@ -118,7 +118,7 @@ Alle controllers hebben een **vast IP-adres** in het thuisnetwerk.
 | [`SJALAY-YSERMONDE`](https://github.com/FidelDworp/SJALAY-YSERMONDE) | Vakantiewoning Sjalay in Recht |
 | [`ESP32C6_Experiments`](https://github.com/FidelDworp/ESP32C6_Experiments) | Testsketches |
 
-Elke controller-repo heeft dezelfde indeling: `README.md`, een sketchmap met dezelfde naam als het `.ino`-bestand (met `partitions.csv`), `GoogleScript/`, `docs/` en `old/`.
+Elke controller-repo heeft dezelfde indeling: `README.md` in de root, een sketchmap met dezelfde naam als het `.ino`-bestand (met `partitions.csv`), `bin/` (laatste `.bin` voor OTA), `GoogleScript/`, `docs/` (alle andere documenten, ook de overdracht voor een nieuw gesprek met Claude) en `old/`.
 
 ## 8. Waar het naartoe gaat
 

@@ -60,7 +60,8 @@ old/                         vorige versies, alleen ter referentie
 ## Afspraken voor alle repo's
 
 - **Eén repo per type controller**, met een `README.md`: wat, status, hardware, `/json`, bestanden, compileren, versies.
-- **Vaste mappen:** `<SketchNaam>/` met `<SketchNaam>.ino` en `partitions.csv` ernaast (de Arduino IDE opent de map rechtstreeks), `GoogleScript/`, `docs/`, `old/`.
+- **Vaste mappen:** `README.md` in de root; **alle andere documenten in `docs/`**; `<SketchNaam>/` met `<SketchNaam>.ino` en `partitions.csv` ernaast (de Arduino IDE opent de map rechtstreeks); `GoogleScript/`; `bin/` met de laatste gecompileerde `.bin` (rechtstreeks te uploaden via `/update`); `old/`.
+- **Overdracht per repo:** `docs/<NAAM>_OVERDRACHT.md` vat werkwijze, stand en open punten samen, zodat een nieuw gesprek met Claude meteen verder kan.
 - **Versiekop en changelog** bovenaan elke sketch; één stap per versie, daarna 48 uur testen.
 - **`/json` is een contract:** keys en bedieningsadressen wijzigen niet zonder afspraak, want het Dashboard, het portaal, Apple Home en de Sheets hangen ervan af.
 - **Taal:** Nederlands.
