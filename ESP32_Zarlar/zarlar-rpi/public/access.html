@@ -11,6 +11,8 @@
   Bediening: POST /api/set/accessN {z, v: 1|0, b} → /set_zone van de controller.
   Grondplan: zelfde tekening en plaatsen als de landingspagina van de ACCESS-sketch (landing.h).
   Deuren staan nog niet in /json (ACCESS v0.5): daarom hier nog niet.
+  Onderaan (zoals room.html, hvac.html, eco.html): de eigen webpagina van de controller in een
+  iframe ("Controller UI"), met een link om ze in een nieuw venster te openen.
 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -48,6 +50,13 @@ html,body { background:var(--bg); color:var(--text); font-family:var(--font); -w
 .mdot.mov { background:var(--red); box-shadow:0 0 6px var(--red); }
 input[type=range] { width:100%; margin-top:10px; accent-color:var(--amber); }
 .refresh { text-align:center; font-size:10px; color:var(--muted); font-family:var(--mono); margin-top:14px; }
+/* PORTAL SECTIE (zoals room.html) */
+.portal-section { background:var(--card); border:1px solid var(--bdr); border-radius:14px; margin-top:14px; overflow:hidden; }
+.portal-header { padding:10px 14px; border-bottom:1px solid var(--bdr); font-size:10px; font-weight:600; color:var(--muted); letter-spacing:.6px; text-transform:uppercase; }
+.portal-link { padding:10px 14px; border-bottom:1px solid var(--bdr); text-align:center; }
+.portal-link a { color:var(--amber); text-decoration:none; font-size:13px; font-family:var(--mono); }
+.portal-link a:hover { color:var(--text); }
+#portal-iframe { width:100%; height:calc(100vh - 84px); border:none; display:block; background:#fff; }
 </style>
 </head>
 <body>
@@ -82,6 +91,15 @@ input[type=range] { width:100%; margin-top:10px; accent-color:var(--amber); }
   </div>
   <div class="tegels" id="tegels"></div>
   <div class="refresh">Vernieuwen elke 5 s · tik op een lamp of tegel: aan/uit · schuifje: dimmen</div>
+
+  <!-- PORTAL SECTIE -->
+  <div class="portal-section">
+    <div class="portal-header">▸ Controller UI</div>
+    <div class="portal-link">
+      <a href="#" target="_blank" id="portal-link">▸ ACCESS controller ↗</a>
+    </div>
+    <iframe id="portal-iframe" src="" title="ACCESS Controller"></iframe>
+  </div>
 </div>
 
 <script>
@@ -103,6 +121,9 @@ let laatst = null, eigen = [], bezig = 0;
 $('naam').textContent = `Buiten ${id} · ACCESS${id}`;
 $('ip-txt').textContent = `${CTRL.ip} · ${CTRL.plek}`;
 document.title = `Zarlar — Buiten ${id}`;
+$('portal-link').href = `http://${CTRL.ip}/`;
+$('portal-link').textContent = `▸ ACCESS${id} controller ↗`;
+$('portal-iframe').src = `http://${CTRL.ip}/`;
 
 function ns(t, a) { const e = document.createElementNS('http://www.w3.org/2000/svg', t); for (const k in a) e.setAttribute(k, a[k]); return e; }
 

@@ -56,7 +56,7 @@ zarlar-rpi/
     ├── eco.html            ← ECO Boiler NIVO 2
     ├── hvac.html           ← HVAC NIVO 2
     ├── room.html           ← Room NIVO 2 (Eetplaats)
-    ├── access.html         ← Buitenverlichting NIVO 2 (?id=1|2|3, ACCESS1–3, v2.13)
+    ├── access.html         ← Buitenverlichting NIVO 2 (?id=1|2|3, ACCESS1–3, v2.13; onderaan Controller UI in iframe)
     ├── outside.html        ← Buitensensor
     ├── matrix.html         ← 16×16 matrix replica (Dashboard)
     ├── 12x4_matrix.html    ← S-ENERGY matrix replica
