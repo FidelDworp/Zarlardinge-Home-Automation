@@ -39,7 +39,7 @@ Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als 
 
 | Controller | Adres | Repo | Versie (7/11) |
 |---|---|---|---|
-| RPi (portaal + Matter-bridge) | 192.168.0.50:3000 | deze repo, `ESP32_Zarlar/zarlar-rpi/` | server.js v2.12, matterbridge-zarlar v0.8 |
+| RPi (portaal + Matter-bridge) | 192.168.0.50:3000 | deze repo, `ESP32_Zarlar/zarlar-rpi/` | server.js v2.13 (ACCESS in de portal, 12/11), matterbridge-zarlar v0.8 |
 | Dashboard (matrix 16×16, logging) | 192.168.0.60 | deze repo, `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/` | v6.4 (rij 3 = buitenverlichting), in test |
 | HVAC | 192.168.0.70 | `ESP32C6_HVAC` | v2.0 (testopstelling) |
 | ECO-boiler | 192.168.0.71 | `ESP32C6_ECO-boiler` | v2.0 |

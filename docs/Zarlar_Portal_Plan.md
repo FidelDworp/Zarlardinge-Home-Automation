@@ -56,6 +56,7 @@ zarlar-rpi/
     ├── eco.html            ← ECO Boiler NIVO 2
     ├── hvac.html           ← HVAC NIVO 2
     ├── room.html           ← Room NIVO 2 (Eetplaats)
+    ├── access.html         ← Buitenverlichting NIVO 2 (?id=1|2|3, ACCESS1–3, v2.13)
     ├── outside.html        ← Buitensensor
     ├── matrix.html         ← 16×16 matrix replica (Dashboard)
     ├── 12x4_matrix.html    ← S-ENERGY matrix replica
@@ -102,6 +103,7 @@ Volledige, eenvoudige uitleg: [`DEPLOY.md`](DEPLOY.md). Kort (sinds 7/11/2026):
 192.168.0.73  → ESP32 Smart Energy (S-ENERGY v1.29 + Tesla bridge, zie §11)
 192.168.0.134 → tesla-key-esp32 (BLE-proxy naar Tesla1, host in S-ENERGY NVS; adres via DHCP, S-ENERGY zoekt hem later op naam via mDNS, Master §6.9)
 192.168.0.80  → ESP32 Room v3.2 (Eetplaats/Testroom)
+192.168.0.82–.84 → ACCESS1–3, buitenverlichting (server.js v2.13; ACCESS1 = testbord, sketch ESP32C6_ACCESS)
 192.168.0.75–.81 → Room controllers (in server.js v2.1):
                    .75 B&B · .76 Badkamer · .77 Inkomhal · .78 Keuken
                    .79 Wasplaats · .80 Eetplaats · .81 Zitplaats
@@ -153,7 +155,7 @@ fetch('/api/poll/eco')
 | `/api/epex` | GET | EPEX België spotprijzen. Slimme cache (v2.2, §6.1), optioneel `?force=1`, extra velden `slots_vandaag`/`slots_morgen` |
 | `/api/poll/:naam` | GET | Poll ESP32 `/json` |
 | `/api/capabilities/:naam` | GET | Controller capabilities (cache 6u) |
-| `/api/set/:naam` | POST | Commando naar controller. Rooms (v2.9): `sw1`/`sw2`/`sw3` (gevraagde toestand, niet togglen), `pN` (pixel N togglen), `setpoint`, `home` of `hm`, `r`/`g`/`b` |
+| `/api/set/:naam` | POST | Commando naar controller. Rooms (v2.9): `sw1`/`sw2`/`sw3` (gevraagde toestand, niet togglen), `pN` (pixel N togglen), `setpoint`, `home` of `hm`, `r`/`g`/`b`. ACCESS (v2.13): `{z: zonecode, v: 1\|0, b: 0-100}` → `/set_zone` |
 | `/api/status` | GET | Status alle controllers |
 | `/api/scenes` | GET/POST/DELETE | Scènes beheren |
 | `/api/scenes/:naam/run` | POST | Scène uitvoeren |
@@ -260,7 +262,7 @@ Via klik naar NIVO 2 pagina
 - 6 klikbare controller-cirkels met Filip's SVG iconen
 - Tab navigatie: Overzicht / Lichten / HVAC / Security
 - Live data via `/api/status` — auto-refresh 15s
-- Demodata als server niet bereikbaar
+- Demodata alleen als de server niet bereikbaar is (v2.13: elke opbouw apart; vroeger liet een fout in `bouwLichten` — element `scene-row` bestaat niet meer — het hele overzicht op demodata terugvallen)
 
 | Controller | SVG icoon | Link |
 |---|---|---|
@@ -268,7 +270,8 @@ Via klik naar NIVO 2 pagina
 | ECO Boiler | Custom boiler SVG (6 lagen) | ✅ /eco.html |
 | **S-ENERGY** | **`drawelectricenergy`** | **✅ /12x4_matrix.html (29/04)** |
 | Eetplaats | `drawhome` | ✅ /room.html |
-| Buiten | `drawSunlight` | ✅ /outside.html |
+| **Buiten 1/2/3** (ACCESS1–3) | lampje (inline SVG), geel als een zone brandt | **✅ /access.html?id=1\|2\|3 (v2.13)** |
+| Outside (Photon S-OUTSIDE) | `drawSunlight` | ✅ /outside.html |
 | **Dashboard** | **`drawwifi`** | **✅ /matrix.html (29/04)** |
 
 ### 4.5 NIVO 2a — ECO Boiler (eco.html) ✅

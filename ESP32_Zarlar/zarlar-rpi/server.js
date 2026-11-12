@@ -1,7 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Zarlar Dashboard Server v2.12 — Raspberry Pi
+// Zarlar Dashboard Server v2.13 — Raspberry Pi
 // Node.js + Express — draait op poort 3000
 //
+// v2.13 (12 nov 2026): ACCESS-controllers (buitenverlichting) in de portal
+//   - CONTROLLERS: access1 (.82, BURO), access2 (.83, B&B), access3 (.84, B&B).
+//     /api/status, /api/poll/accessN en /api/matrix nemen ze vanzelf mee.
+//   - POST /api/set/accessN {z:"D", v:1|0, b:0-100} → GET /set_zone?z=&v=[&b=] van de
+//     controller (contract, ESP32C6_ACCESS/docs/ACCESS_STANDAARD.md §3.1).
+//   - Nieuwe pagina public/access.html?id=1|2|3; kaarten "Buiten 1/2/3" op index.html.
+//   - Apple Home (KNOPPEN) en de matrix blijven bij de Photon R8-ACCESS tot ACCESS v0.4.
 // v2.12 (6 nov 2026): FIX buitenlichten in Apple Home
 //   - Terras (S), Veldkant (W2) en Voordeur (W1) stuurden naar de Photon S-OUTSIDE,
 //     die alleen zonlicht meet. Ze gaan nu naar R8-ACCESS (westmuur slaapkamer),
@@ -180,6 +187,10 @@ const CONTROLLERS = {
   room79: 'http://192.168.0.79',  // Wasplaats
   room80: 'http://192.168.0.80',  // Eetplaats
   room81: 'http://192.168.0.81',  // Zitplaats
+  // ACCESS-controllers, buitenverlichting (v2.13):
+  access1: 'http://192.168.0.82',  // BURO (zuid + west)
+  access2: 'http://192.168.0.83',  // B&B (W1, N1)
+  access3: 'http://192.168.0.84',  // B&B (N2, E)
 };
 
 // ── Photon controllers (via Cloudflare Worker proxy) ──────────────────────────
@@ -876,6 +887,24 @@ app.post('/api/set/:controller', async (req, res) => {
       return res.json({ ok: true, controller: naam, results: [{ pomp: r.ok, actie: ep }] });
     } catch(e) {
       return res.status(503).json({ error: 'ECO commando mislukt', detail: e.message });
+    }
+  }
+
+  // ─── ACCESS-CONTROLLERS (v2.13) ────────────────────────────────────────────
+  // {z: zonecode, v: 1 (manueel aan) | 0 (uit, terug naar AUTO), b: 0-100 (optioneel)}
+  if (naam.startsWith('access')) {
+    const { z, v, b } = req.body || {};
+    const vv = parseInt(v);
+    if (typeof z !== 'string' || !/^[A-Za-z0-9]{1,3}$/.test(z) || (vv !== 0 && vv !== 1))
+      return res.status(400).json({ error: 'Verwacht {z: zonecode, v: 1|0, b: 0-100}' });
+    let url = `${baseUrl}/set_zone?z=${encodeURIComponent(z)}&v=${vv}`;
+    const bb = parseInt(b);
+    if (vv === 1 && !isNaN(bb)) url += `&b=${Math.max(0, Math.min(100, bb))}`;
+    try {
+      const r = await fetch(url, { timeout: 3000 });
+      return res.status(r.ok ? 200 : r.status).json({ ok: r.ok });
+    } catch(e) {
+      return res.status(503).json({ error: 'ACCESS commando mislukt', detail: e.message });
     }
   }
 

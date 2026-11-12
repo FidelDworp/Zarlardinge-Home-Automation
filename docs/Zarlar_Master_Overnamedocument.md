@@ -90,7 +90,7 @@ Elke controller publiceert enkel zijn `/json` endpoint — het Dashboard doet de
 | **Tesla-proxy** | tesla-key-esp32 (`tesla-key-esp32.local`) | 192.168.0.134 (in S-ENERGY: NVS `t1_host`) | — | ESP32-C6 30-pin P4 (4 MB), apart board, niet op het Zarlar shield | — | ✅ BLE-proxy naar Tesla1 (§6.10) |
 | **ROOM / Eetplaats** | ESP32_EETPLAATS | 192.168.0.80 | 58:8C:81:32:2F:48 | 32-pin clone | v3.1 | ✅ Zonder Matter (v3.0), landingspagina (v3.1, 48 u-test loopt) |
 | **Zarlar Dashboard** | ESP32_ZARLAR | 192.168.0.60 | A8:42:E3:4B:FA:BC | 32-pin DevKitM-1 | v6.4 (in test) | ✅ Matrix 16×16 · zonder Matter · OTA |
-| **RPi Portal** | zarlar-rpi | 192.168.0.50 | — | Raspberry Pi 3B+ | server.js v2.12 (6/11: fix buitenlichten) | ✅ Actief (Tailscale) · Matter-bridge plugin v0.8 |
+| **RPi Portal** | zarlar-rpi | 192.168.0.50 | — | Raspberry Pi 3B+ | server.js v2.13 (12/11: ACCESS1–3 in de portal, nog te deployen) | ✅ Actief (Tailscale) · Matter-bridge plugin v0.8 |
 
 **Plaats (testopstelling, nov 2026):** alles draait echt, maar nog niet op de definitieve plaats. RPi en Dashboard: zitplaats. ECO en Smart Energy: elk op een bordje in de slaapkamer. room80 (experimenteerbord: een ROOM met alle sensoren): op tafel in de eetplaats tot de testen afgerond zijn. HVAC: bord met sensoren en relais in de slaapkamer. Tesla-proxy: wasplaats, naast de parking en de lader van de Tesla Model 3.
 
