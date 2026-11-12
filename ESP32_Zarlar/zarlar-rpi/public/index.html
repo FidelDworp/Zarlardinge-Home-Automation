@@ -1169,21 +1169,24 @@ function bouwSyn(s) {
       val: () => '—',
       sub: () => 'room 81'
     },
-    // ACCESS-controllers, buitenverlichting (server.js v2.13)
-    ...[1,2,3].map(n => {
-      const a = s['access'+n] || {};
-      const zones = Object.keys(a).filter(k => /^l[a-z0-9]{1,3}$/.test(k) && k !== 'lux' && k !== 'lb');
-      const aan = zones.filter(k => (parseInt(a[k])||0) > 0).length;
-      const klr = !a.online ? '#6b7f8e' : aan ? '#ffb030' : '#3a4a5a';
+    // ACCESS-controllers, buitenverlichting: één kaart voor ACCESS1–3 (server.js v2.13)
+    (() => {
+      const lijst = [1,2,3].map(n => s['access'+n] || {}).filter(a => a.online);
+      let tot = 0, aan = 0;
+      for (const a of lijst) for (const k of Object.keys(a).filter(k => /^l[a-z0-9]{1,3}$/.test(k) && k !== 'lux' && k !== 'lb')) {
+        tot++; if ((parseInt(a[k])||0) > 0) aan++;
+      }
+      const dn = lijst[0];   // ACCESS1 (luxsensor) als die online is, anders de volgende
+      const klr = !lijst.length ? '#6b7f8e' : aan ? '#ffb030' : '#3a4a5a';
       return {
-        naam: 'Buiten ' + n, link: '/access.html?id=' + n, kl: a.online ? (aan ? 'wt' : 'ok') : 'dim',
+        naam: 'Buiten', link: '/access.html', kl: lijst.length ? (aan ? 'wt' : 'ok') : 'dim',
         icon: () => `<svg viewBox="0 0 40 40" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
           <path d="M20 6a10 10 0 0 0-6 18v4h12v-4a10 10 0 0 0-6-18z" fill="${aan ? 'rgba(255,176,48,0.35)' : 'none'}" stroke="${klr}" stroke-width="2"/>
           <path d="M15 32h10M16 35h8" stroke="${klr}" stroke-width="2" stroke-linecap="round"/></svg>`,
-        val: () => a.online ? `${aan}/${zones.length} aan` : '—',
-        sub: () => a.online ? `${a.nt ? '☾' : '☀'} ${a.lux >= 0 ? a.lux + ' lux' : (n === 1 ? 'BURO' : 'B&B')}` : (n === 1 ? 'BURO · offline' : 'B&B · nog niet')
+        val: () => lijst.length ? `${aan}/${tot} aan` : '—',
+        sub: () => lijst.length ? `${dn.nt ? '☾' : '☀'} ${dn.lux >= 0 ? dn.lux + ' lux · ' : ''}${lijst.length}/3 online` : 'offline'
       };
-    }),
+    })(),
     // Solar
     {
       naam: 'Outside', link: '/outside.html', kl: 'ok',

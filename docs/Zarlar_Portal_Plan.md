@@ -56,7 +56,7 @@ zarlar-rpi/
     ├── eco.html            ← ECO Boiler NIVO 2
     ├── hvac.html           ← HVAC NIVO 2
     ├── room.html           ← Room NIVO 2 (Eetplaats)
-    ├── access.html         ← Buitenverlichting NIVO 2 (?id=1|2|3, ACCESS1–3, v2.13; onderaan Controller UI in iframe)
+    ├── access.html         ← Buitenverlichting NIVO 2: alle zones van ACCESS1–3 op één grondplan (12/11); onderaan Controller UI met keuze 1/2/3 (?id=N kiest)
     ├── outside.html        ← Buitensensor
     ├── matrix.html         ← 16×16 matrix replica (Dashboard)
     ├── 12x4_matrix.html    ← S-ENERGY matrix replica
@@ -270,7 +270,7 @@ Via klik naar NIVO 2 pagina
 | ECO Boiler | Custom boiler SVG (6 lagen) | ✅ /eco.html |
 | **S-ENERGY** | **`drawelectricenergy`** | **✅ /12x4_matrix.html (29/04)** |
 | Eetplaats | `drawhome` | ✅ /room.html |
-| **Buiten 1/2/3** (ACCESS1–3) | lampje (inline SVG), geel als een zone brandt | **✅ /access.html?id=1\|2\|3 (v2.13)** |
+| **Buiten** (ACCESS1–3 samen) | lampje (inline SVG), geel als een zone brandt; x/y aan, n/3 online | **✅ /access.html (12/11; eerst 3 kaarten)** |
 | Outside (Photon S-OUTSIDE) | `drawSunlight` | ✅ /outside.html |
 | **Dashboard** | **`drawwifi`** | **✅ /matrix.html (29/04)** |
 
