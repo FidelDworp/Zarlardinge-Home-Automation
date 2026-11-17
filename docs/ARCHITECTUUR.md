@@ -1,6 +1,6 @@
 # Architectuur van het Zarlar-systeem
 
-*Bijgewerkt 6 november 2026 — Filip Delannoy (FiDel)*
+*Bijgewerkt 17 november 2026 — Filip Delannoy (FiDel)*
 
 Dit document legt uit hoe het geheel in elkaar zit: welke toestellen er zijn, hoe ze met elkaar praten en welke afspraken overal gelden. Details per controller (pinnen, `/json`-keys, versies) staan in het [Master-document](Zarlar_Master_Overnamedocument.md) en in de README van elke repo.
 
@@ -11,6 +11,19 @@ Dit document legt uit hoe het geheel in elkaar zit: welke toestellen er zijn, ho
 - **Elke ruimte of installatie heeft een eigen klein computertje** (een ESP32-C6). Dat meet, regelt en heeft een eigen webpagina. Valt er één uit, dan werkt de rest gewoon verder.
 - **Elke controller publiceert zijn toestand op één adres: `/json`.** Alles wat meer wil weten, vraagt het daar op. De controllers sturen zelf niets naar buiten.
 - **Twee centrale toestellen halen die gegevens op:** het **Dashboard** (een ESP32 met een lichtgevende statusmatrix, die ook naar Google Sheets logt) en de **Raspberry Pi** (het portaal met de uitgebreide webpagina's en de koppeling met Apple Home).
+
+### Waarom het zo gebouwd is
+
+| Keuze | Waarom dat goed is |
+|---|---|
+| **Alleen laagspanning (24, 12 en 5 V DC)** in de verlichting en de controllers | Veilig bij aanraking, geschikt voor een B&B. 230 V blijft binnen gekeurde toestellen |
+| **Lokaal, zonder cloud** (ESP32's + RPi in huis) | Geen afhankelijkheid van een fabrikant die zijn dienst stopzet (zoals de Aqara-hub en, op termijn, de Particle Cloud) |
+| **Eén standaard per soort controller** (één ROOM-sketch, [ROOM-standaard](https://github.com/FidelDworp/ESP32C6_ROOMS/blob/main/docs/ROOM_STANDAARD.md)) | Eén sketch onderhouden in plaats van een variant per kamer, zoals in de Photon-tijd |
+| **Gespreid:** elke kamer of installatie regelt zichzelf | Valt één controller, het netwerk of de RPi uit, dan blijven de andere werken |
+| **Faalveilig:** gewone schakelaars blijven werken zonder domotica (bv. die van Maarten in de B&B, parallel over de Powerpixel) | Licht werkt ook als een controller of de wifi uitvalt |
+| **Bediening via Apple Home en Google Home** (Matter-bridge op de RPi), geen eigen app | Vertrouwde apps voor iedereen in huis; niets eigens te onderhouden op de telefoon |
+| **Brandveilige montage:** elektronica op Trespa, stroomverdeling op aluminium, een zekering per kring | Onbrandbare of brandvertragende dragers, beperkte stroom per kring |
+| **Alles gedocumenteerd in de repo's** (README, standaarden, overdracht per repo) | Iemand anders, of een AI, kan verder zonder dat alles in één hoofd zit. Zie ook het [plan voor de overnamedocumentatie](OVERNAME_PLAN.md) |
 
 ## 2. De drie lagen
 

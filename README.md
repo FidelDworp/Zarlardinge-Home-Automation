@@ -4,7 +4,7 @@ Zelfgebouwde thuisautomatisering van de schuur en de woning in **Zarlardinge** (
 
 Dit is de **overkoepelende repo**: hier begint wie het geheel wil begrijpen. Elke controller heeft daarnaast een eigen repo.
 
-*Filip Delannoy (FiDel) — bijgewerkt 6 november 2026*
+*Filip Delannoy (FiDel) — bijgewerkt 17 november 2026*
 
 ## Waar begin ik?
 
@@ -15,6 +15,7 @@ Dit is de **overkoepelende repo**: hier begint wie het geheel wil begrijpen. Elk
 | Alle technische details (pinnen, `/json`, regels, versies) | [`docs/Zarlar_Master_Overnamedocument.md`](docs/Zarlar_Master_Overnamedocument.md) |
 | Nieuwe software op een controller of de RPi zetten | [`docs/DEPLOY.md`](docs/DEPLOY.md) |
 | De Raspberry Pi: portaal, Apple Home, energie | [`docs/Zarlar_Portal_Plan.md`](docs/Zarlar_Portal_Plan.md) |
+| Het systeem overnemen of beheren als FiDel er niet is | [`docs/OVERNAME_PLAN.md`](docs/OVERNAME_PLAN.md) (plan, in opbouw) |
 
 ## Alle controllers
 
@@ -51,6 +52,7 @@ docs/
   Zarlar_Portal_Plan.md      RPi-portaal, Apple Home-bridge, energie
   DEPLOY.md                  nieuwe software op een ESP32 of de RPi zetten
   ZARLAR_OVERDRACHT.md       overdracht voor een nieuw gesprek met Claude (werkwijze, stand, open punten)
+  OVERNAME_PLAN.md           plan voor de overnamedocumentatie (noodkaarten, inventaris, herstel, toegang)
 ESP32_Zarlar/
   ESP32_C6_Zarlar_Dashboard_Matrix/   sketch van het Dashboard (+ partitions.csv)
   zarlar-rpi/                RPi-portaal: server.js, webpagina's, Apple Home-plugin, deploy-scripts

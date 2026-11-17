@@ -72,6 +72,7 @@ Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als 
 
 ## 4. Open punten (deze repo)
 
+- **Overnamedocumentatie (17/11):** plan v0.1 in [`OVERNAME_PLAN.md`](OVERNAME_PLAN.md), wacht op de antwoorden van FiDel (§6). Eerste stap: inventaris van de technische kasten, daarna de noodkaart van de B&B-kast als proef met Maarten.
 - **Dashboard v6.4:** 48 u-test (heap) en rij 3 (buitenverlichting) in de praktijk bekijken.
 - **Dashboard:** HOME/UIT-tegel via de RPi (`/home_json`, `/set_home_global`), nieuwe matrixlegende.
 - **Master-document:** §4–§8 bijwerken na de 48 u-tests (o.a. Dashboard v6.1–v6.4, ROOM v3.3).
