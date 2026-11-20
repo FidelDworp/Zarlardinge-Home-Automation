@@ -45,6 +45,32 @@ Mislukt de update, dan blijft de oude versie gewoon draaien.
 4. In de map `build/…` staan meerdere `.bin`-bestanden. Kies **enkel `<sketch>.ino.bin`**, niet `.bootloader.bin`, `.partitions.bin` of `.merged.bin`.
 5. Upload dat bestand zoals bij A.
 
+### A2. Van op afstand: via de RPi flashen (getest 20/11/2026)
+
+Een upload van 1,2 MB via mobiel internet + Tailscale breekt makkelijk af ("Update mislukt!" of een pagina die blijft hangen). Laat dan de **RPi thuis** flashen: die zit op het lokale netwerk.
+
+Op de Mac (Terminal, Tailscale aan):
+
+```
+ssh fidel@100.123.74.113
+```
+
+Op de RPi (pas het IP en de bestandsnaam aan):
+
+```
+curl -L -o /tmp/fw.bin https://raw.githubusercontent.com/FidelDworp/ESP32C6_ROOMS/main/bin/ESP32_C6_ROOM_v3.5.ino.bin && ls -l /tmp/fw.bin
+curl -s http://192.168.0.80/reboot; sleep 30
+curl -F "update=@/tmp/fw.bin" http://192.168.0.80/update
+rm /tmp/fw.bin; exit
+```
+
+- `ls -l` moet dezelfde grootte tonen als op GitHub.
+- De `reboot` vooraf wist een eerder afgebroken upload (anders faalt elke nieuwe poging meteen).
+- **"Connection reset by peer"** bij de upload is normaal: de controller herstart meteen na een geslaagde update.
+- Controleren (Mac): `curl -s http://192.168.0.80/settings | grep -o "ROOM v[0-9.]*" | head -1`
+
+**Let op in Nieuwpoort (WiFi):** het netwerk daar gebruikt ook `192.168.0.x`. Dan zoekt de Mac `192.168.0.80` in het lokale netwerk en niet via Tailscale. Via de hotspot van de iPhone (mobiel internet) werkt het wel.
+
 ### C. Via de USB-kabel
 
 1. Controller met een USB-kabel aan de laptop, sketchmap open in de Arduino IDE, instellingen zoals bij B.
