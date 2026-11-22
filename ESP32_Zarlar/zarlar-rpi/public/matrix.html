@@ -429,7 +429,7 @@ function renderRoom(d) {
   const pr=jI(d,'q'),pg=jI(d,'r'),pb=jI(d,'s');
   px[10]=(pr+pg+pb>0)?C(Math.round(pr/2),Math.round(pg/2),Math.round(pb/2)):C(10,10,10);
   const ni=jI(d,'o'); px[11]=ni?C(40,0,60):C(180,150,0);
-  const ldr=jI(d,'m'),br=Math.min(200,(100-Math.min(ldr,100))*2); px[12]=C(br,Math.round(br*0.75),0);
+  const ldr=jI(d,'m'),br=Math.min(200,Math.min(ldr,100)*2); px[12]=C(br,Math.round(br*0.75),0);  // ROOM v3.5.3: m = 100 licht, 0 donker
   // Pixels aan (key t = "P=00111")
   let pxbr=0;
   if (d.t && typeof d.t === 'string') {

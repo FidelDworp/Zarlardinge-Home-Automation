@@ -21,7 +21,7 @@ Dit is de **overkoepelende repo**: hier begint wie het geheel wil begrijpen. Elk
 
 | Controller | Adres | Repo | Versie | Status |
 |---|---|---|---|---|
-| **Dashboard** (statusmatrix, logging) | 192.168.0.60 | deze repo, [`ESP32_Zarlar/`](ESP32_Zarlar/) | v6.4 (in test) | ✅ productie |
+| **Dashboard** (statusmatrix, logging) | 192.168.0.60 | deze repo, [`ESP32_Zarlar/`](ESP32_Zarlar/) | v6.5 (22/11: LDR-kolom volgt ROOM v3.5.3) | ✅ productie |
 | **RPi-portaal** + Apple Home-bridge | 192.168.0.50:3000 | deze repo, [`ESP32_Zarlar/zarlar-rpi/`](ESP32_Zarlar/zarlar-rpi/) | server.js v2.13 (12/11: ACCESS), plugin v0.8 | ✅ productie |
 | **HVAC** (verwarmingskringen, ventilatie) | 192.168.0.70 | [`ESP32C6_HVAC`](https://github.com/FidelDworp/ESP32C6_HVAC) | v2.0 | 🧪 test; de Photon S-HVAC stuurt nog de echte verwarming |
 | **ECO-boiler** (zonneboiler 490 L) | 192.168.0.71 | [`ESP32C6_ECO-boiler`](https://github.com/FidelDworp/ESP32C6_ECO-boiler) | v2.0 | ✅ productie |
@@ -58,7 +58,7 @@ ESP32_Zarlar/
   zarlar-rpi/                RPi-portaal: server.js, webpagina's, Apple Home-plugin, deploy-scripts
   worker-status.js           Cloudflare Worker (Photon-gegevens zonder token in de browser)
 bin/
-  ESP32_C6_Zarlar_Dashboard_Matrix_v6.4.ino.bin   Dashboard, klaar om te uploaden via /update (gecompileerd door Claude)
+  ESP32_C6_Zarlar_Dashboard_Matrix_v6.5.ino.bin   Dashboard, klaar om te uploaden via /update (gecompileerd door Claude)
 old_portal/                  de oude Photon-webapp (GitHub Pages), wordt nog gebruikt
 old/                         vorige versies, alleen ter referentie
 ```

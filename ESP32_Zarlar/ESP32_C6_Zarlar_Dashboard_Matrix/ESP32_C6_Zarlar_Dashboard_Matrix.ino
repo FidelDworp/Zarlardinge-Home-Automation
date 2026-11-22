@@ -1,5 +1,5 @@
 /* ============================================================
-   Zarlar Dashboard v6.4 (zonder Matter)
+   Zarlar Dashboard v6.5 (zonder Matter)
    ESP32-C6 (32-pin 16MB) @ 192.168.0.60
    Filip Delannoy
 
@@ -46,6 +46,10 @@
        /matrix_test of Serial commando 'matrix-test'. Pas MATRIX_FLIP_H
        aan als kolommen gespiegeld zijn.
 
+   22nov26        v6.5  ROOM-rijen kolom 12 (LDR): ROOM v3.5.3 stuurt m nu als 100 = licht, 0 = donker
+                        (was 100 = donker). De omrekening 100 − m valt weg. Photon-rijen ongewijzigd
+                        (eigen renderer). ESP32-rooms met een ROOM-sketch ouder dan v3.5.3 tonen kolom 12
+                        tot hun update omgekeerd.
    06nov26        v6.4  RIJ 3 = BUITENVERLICHTING, de 4 muren rondom het huis:
                           kol 0-3 W  : status · PIR (W1 of W2) · licht W1 Voordeur · licht W2 Veldkant
                           kol 4-7 Z  : status · PIR S · licht S Terras · vrij
@@ -191,7 +195,7 @@
 // ⚠️ Verplicht voor ESP32-C6 (RISC-V) — vóór alle #include statements
 #define Serial Serial0
 
-#define DASH_VERSION "6.4"
+#define DASH_VERSION "6.5"
 
 #include <WiFi.h>
 #include <esp_wifi.h>
@@ -973,9 +977,9 @@ void renderRoomRow(int row, int ci) {
   else            matPx(row, 11, 255, 200, 0);
 
   // Col 12: LDR omgevingslicht — continu (donker = rust, licht = fel geel)
-  //         (room-sketch: oude schaal, 100 = donker)
+  //         v6.5: ROOM v3.5.3+ stuurt m als 100 = licht, 0 = donker
   {
-    int lv = 100 - constrain(jI(j, "m"), 0, 100);          // 0 = donker, 100 = licht
+    int lv = constrain(jI(j, "m"), 0, 100);                // 0 = donker, 100 = licht
     if (lv <= 2) rustPx(row, 12);
     else matPx(row, 12, (uint8_t)(lv * 2.55f), (uint8_t)(lv * 2.0f), 0);
   }

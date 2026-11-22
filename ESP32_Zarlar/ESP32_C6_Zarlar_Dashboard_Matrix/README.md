@@ -2,7 +2,7 @@
 
 Open deze map in de Arduino IDE. De sketch heet **`ESP32_C6_Zarlar_Dashboard_Matrix.ino`** en staat naast `partitions.csv` (16 MB, wordt automatisch gebruikt).
 
-**Versie: v6.4** (6 nov 2026, in test). Nieuw: matrixrij 3 toont de buitenverlichting rondom het huis (W · Z · N · O), zie de changelog bovenaan de sketch en Master §8.6. v6.3 staat in de geschiedenis van de repo.
+**Versie: v6.5** (22 nov 2026): ROOM-rijen kolom 12 (LDR) volgt de nieuwe schaal van ROOM v3.5.3 (`m`: 100 = licht, 0 = donker). **v6.4** (6 nov 2026): matrixrij 3 toont de buitenverlichting rondom het huis (W · Z · N · O), zie de changelog bovenaan de sketch en Master §8.6. v6.3 staat in de geschiedenis van de repo.
 
 ## Rij 3 — buitenverlichting (sinds v6.4)
 
@@ -27,4 +27,4 @@ Zolang de bron niet online is (pixel 1 en 5 geel of rood), blijven pixels 2–4 
 
 Board en uploaden: zie het Master-document §2.6 en §8.
 
-**Klaar om te uploaden:** `bin/ESP32_C6_Zarlar_Dashboard_Matrix_v6.4.ino.bin` in de root van deze repo, via `http://192.168.0.60/update` (sinds v6.1). Gecompileerd door Claude met ESP32-core 3.3.12 en de nieuwste bibliotheken; alleen de laatste versie.
+**Klaar om te uploaden:** `bin/ESP32_C6_Zarlar_Dashboard_Matrix_v6.5.ino.bin` in de root van deze repo, via `http://192.168.0.60/update` (sinds v6.1). Gecompileerd door Claude met ESP32-core 3.3.12 en de nieuwste bibliotheken; alleen de laatste versie.
