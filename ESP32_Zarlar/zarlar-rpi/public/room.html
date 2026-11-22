@@ -349,7 +349,7 @@ function updateUI(data) {
   const temp_ds = parseFloat(data.f) || 0;
   const humi = parseInt(data.h) || 0;
   const co2 = parseInt(data.k) || 0;
-  const sun_light = parseInt(data.n) || 0;
+  // ROOM v3.5.2: zonlicht (n) bestaat niet meer in de room-JSON — tegel verwijderd
   const mov1_triggers = parseInt(data.w) || 0;
   const mov2_triggers = parseInt(data.x) || 0;
 
@@ -359,7 +359,6 @@ function updateUI(data) {
     { icon: drawTemperature(36, tempColor(temp_ds)), label: 'Temperatuur DS18B20', value: temp_ds.toFixed(1), unit: '°C', sub: '' },
     { icon: drawHumidity(36, humiColor(humi)), label: 'Vochtigheid', value: humi, unit: '%', sub: '' },
     { icon: drawCO2(36, co2Color(co2)), label: 'CO₂', value: co2, unit: 'ppm', sub: co2 === 0 ? 'sensor uit' : '' },
-    { icon: drawLighting(36, lightColor(sun_light)), label: 'Zonlicht', value: sun_light, unit: 'lux', sub: '' },
     { icon: drawMovement(36, mov1_triggers > 0 ? '#ffb030' : '#6b7f8e'), label: 'MOV1 triggers', value: mov1_triggers, unit: '/min', sub: '' },
     { icon: drawMovement(36, mov2_triggers > 0 ? '#ffb030' : '#6b7f8e'), label: 'MOV2 triggers', value: mov2_triggers, unit: '/min', sub: '' },
   ];
