@@ -1,6 +1,6 @@
 # Overdracht — Zarlar (overkoepelend)
 
-*Stand 7 november 2026 — Filip Delannoy (FiDel), Zarlardinge (BE)*
+*Stand 23 november 2026 — Filip Delannoy (FiDel), Zarlardinge (BE)*
 
 Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als geheel: Dashboard, RPi-portaal, Apple Home-bridge, afspraken tussen de repo's. Elke controller-repo heeft daarnaast een eigen overdracht in `docs/` (zie §3). Wie het systeem wil leren kennen, begint bij [`README.md`](../README.md) en [`ARCHITECTUUR.md`](ARCHITECTUUR.md).
 
@@ -33,20 +33,30 @@ Dit document start een **nieuw gesprek met Claude** over het Zarlar-systeem als 
 3. **NVS (20 KB) vol door oude Matter-resten** (`CHIP_KVS`, `esp_matter_kvs`, `chip-*`, `nimble_bond`): instellingen en diagnose worden dan stilletjes niet meer bewaard. NVS houdt altijd één pagina (126 vakjes) leeg, dus "134 vrij" kan al vol zijn. ROOM v3.4.5 toont NVS per naamruimte en heeft een knop om ongebruikte naamruimtes te wissen; neem dat over in sketches die vroeger Matter draaiden.
 4. **Types (struct) bovenaan de sketch** zetten, vóór de eerste functie: de automatische prototypes van de Arduino IDE komen daar.
 
+### Lessen stroompanne (23/11 — gelden voor alle sketches)
+
+Na een stroompanne start de ESP32 in ±1 s, de router pas na 1–3 min. HVAC, ECO, Dashboard en S-ENERGY gingen daardoor **voorgoed** in AP-modus (geen polling, geen verwarmingssturing via de rooms, geen Sheets) tot een manuele reset. Regels sindsdien:
+
+1. **Met opgeslagen SSID nooit definitief naar AP.** Eén poging van 20 s bij boot, daarna `wifiWatchdog()` in `loop()`: nieuwe poging elke 30 s; na **3 min** fallback-AP in **AP_STA** (STA blijft elke 60 s proberen); verbonden → AP en DNS uit, NTP/mDNS opnieuw; na **10 min** zonder netwerk én zonder iemand op de AP → `ESP.restart()`. Zuivere AP-modus alleen zonder SSID. Lokale functies (pompen, PIR, verlichting, thermostaatpinnen) blijven altijd werken.
+2. **Nooit `delay()` of `ESP.restart()` in een AsyncWebServer-callback** (AsyncTCP-taak): de herstart na OTA/reboot/opslaan bleef dan uit. Callback zet `scheduleReboot()`, `loop()` herstart. OTA controleert `Update.begin/write/end` en toont de foutmelding.
+3. **Versie op één plek** (`#define …_VERSION`), zichtbaar in de koptekst van de webpagina's, op de OTA-pagina en waar mogelijk in `/json` (`ver`).
+4. **AP-namen (hardcoded):** `Zarlar-Setup` (Dashboard), `HVAC-Setup`, `ECO-Setup`, `ENERGY-Setup`, `ROOM-<naam>`, `ACCESS-<naam>`. Tesla-proxy (firmware 0Bu, v1.5.4): `tesla-key-esp32-setup`, herstelt zichzelf.
+5. **Herstart na stroompanne:** eerst router/wifi stabiel, dan de DC-voedingen (kelder); Photons in listening mode (blauw knipperend) moeten opnieuw ingesteld worden.
+
 ## 2. Het systeem in het kort
 
 **Eén netwerk** achter de Telenet-router: woning en schuur zien elkaar rechtstreeks. Geen DHCP-reservering mogelijk: vaste IP's staan in de controller zelf. Bereik **.50–.84 is voor de schuur**.
 
-| Controller | Adres | Repo | Versie (7/11) |
+| Controller | Adres | Repo | Versie (23/11) |
 |---|---|---|---|
 | RPi (portaal + Matter-bridge) | 192.168.0.50:3000 | deze repo, `ESP32_Zarlar/zarlar-rpi/` | server.js v2.13 (ACCESS in de portal, 12/11), matterbridge-zarlar v0.8 |
-| Dashboard (matrix 16×16, logging) | 192.168.0.60 | deze repo, `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/` | v6.4 (rij 3 = buitenverlichting), in test |
-| HVAC | 192.168.0.70 | `ESP32C6_HVAC` | v2.0 (testopstelling) |
-| ECO-boiler | 192.168.0.71 | `ESP32C6_ECO-boiler` | v2.0 |
+| Dashboard (matrix 16×16, logging) | 192.168.0.60 | deze repo, `ESP32_Zarlar/ESP32_C6_Zarlar_Dashboard_Matrix/` | v6.6 (wifi-herstel) |
+| HVAC | 192.168.0.70 | `ESP32C6_HVAC` | v2.2 (wifi-herstel, versie zichtbaar, OTA-herstart) |
+| ECO-boiler | 192.168.0.71 | `ESP32C6_ECO-boiler` | v2.1 (idem) |
 | S-OUTSIDE | .72 (gereserveerd) | — | alleen een idee |
-| Smart Energy | 192.168.0.73 · `smart-energy.local` | `ESP32C6_Smart-Energy` | v1.30, 48 u-test loopt |
-| ROOM (B&B … Zitplaats) | .75–.81 (room80 = Eetplaats) | `ESP32C6_ROOMS` | v3.3 op room80 (7/11) |
-| ACCESS1/2/3 | .82/.83/.84 | `ESP32C6_ACCESS` | nog te ontwerpen; vandaag Photon R8-ACCESS |
+| Smart Energy | 192.168.0.73 · `smart-energy.local` | `ESP32C6_Smart-Energy` | v1.31 (idem + AP `ENERGY-Setup`) |
+| ROOM (B&B … Zitplaats) | .75–.81 (room80 = Eetplaats) | `ESP32C6_ROOMS` | v3.6 |
+| ACCESS1/2/3 | .82/.83/.84 | `ESP32C6_ACCESS` | v0.3.2 (wifi-herstel); Photon R8-ACCESS nog actief |
 | Photon-rooms | Particle Cloud + Cloudflare Worker | `PHOTON_ROOMS` | nog in productie, behalve de B&B |
 
 **Dashboard-matrix:** rij 0 HVAC · 1 ECO · 2 S-ENERGY · 3 ACCESS (W·Z·N·O) · 4 scheiding · 5–11 rooms · 12–15 leeg.
@@ -86,6 +96,8 @@ Uitleg voor iedereen over deployen (ESP32 en RPi): [`DEPLOY.md`](DEPLOY.md).
 
 - **Compileren (FiDel):** board ESP32C6 Dev Module, **Flash 16 MB**, Partition Custom (`partitions.csv` in de sketchmap), USB CDC On Boot Enabled. JavaScript altijd in een `.h`-bestand.
 - **OTA:** enkel `<sketch>.ino.bin` uploaden via `http://<ip>/update` (ook het Dashboard, sinds v6.1). De partitietabel kan niet via OTA veranderen.
+- **Versies in de IDE van FiDel (vast, 23/11):** core esp32 **3.3.12** · Async TCP **3.5.0** · ESP Async WebServer **3.12.1** · ArduinoJson **7.4.3** · Adafruit NeoPixel **1.15.5**. Core 4.0.0 (nieuwe hoofdversie) is **nog niet getest**: niet updaten zonder testmoment, ook geen bibliotheek-updates.
+- **Claude-builds gebruiken exact die versies** (bibliotheken met `git clone --depth 1 --branch <tag>`: `v3.5.0`, `v3.12.1`, `v7.4.3`, `1.15.5`), nooit de nieuwste. Op 23/11 startte een ACCESS-build met AsyncTCP 3.6.1 + WebServer 3.13.0 na OTA niet op, terwijl dezelfde `.ino` uit de IDE wel werkte. Andere bibliotheken (DHT, MCP23017, MAX31865, OneWireNg …) eerst op de versie van de IDE zetten (FiDel: tabel "Using library … at version …" onderaan de uitvoer). **Een `.bin` voor OTA alleen als hij met deze versies gebouwd is**; anders levert Claude de `.ino` en bouwt FiDel zelf.
 - **Compileren in de Claude-sessie** (werkt sinds 7/11): `arduino-cli` 1.3.1 (GitHub-release); index `package_esp32_index.json` van de GitHub-release `espressif/arduino-esp32` 3.3.12, ingekort tot `esp-rv32`, `esp-x32`, `esptool_py`, `esp32c6-libs`, `esp32-libs` en als `file://`-index gebruikt (espressif.github.io en downloads.arduino.cc zijn niet bereikbaar); bibliotheken via `git clone` (ESP32Async/ESPAsyncWebServer + AsyncTCP, bblanchon/ArduinoJson, adafruit DHT + Adafruit_Sensor + NeoPixel + MCP23017 + BusIO + MAX31865, pstolarz/OneWireNg). arduino-cli herkent universal-ctags niet: `runtime.tools.ctags.path` naar een lege `ctags` en de prototypes zelf genereren met universal-ctags in een tijdelijke kopie van de sketch (nooit in de repo). FQBN ESP32-C6: `esp32:esp32:esp32c6:FlashSize=16M,PartitionScheme=custom,CDCOnBoot=cdc` (ROOM sinds v3.4.2: `CDCOnBoot=default`, zie lessen hierboven); klassieke ESP32: `esp32:esp32:esp32`. **Altijd `--output-dir` buiten de repo** (bv. `/tmp/build_<naam>`): arduino-cli maakt anders een map `build/` (±55 MB) in de sketchmap, die per vergissing mee gecommit werd (Sjalay 9–11/11, ACCESS 11/11). Elke repo krijgt een `.gitignore` met `build/`, `*.elf`, `*.map`.
 - **RPi:** `ssh -t fidel@192.168.0.50 'bash ~/update.sh'` zet portaal, webpagina's én Apple Home-plugin gelijk met GitHub (v2, 7/11). Eigen bestanden vanaf de Mac: `bash ~/deploy.sh "omschrijving"` (v3: alleen gekende bestanden uit `~/Downloads`). Details: [`DEPLOY.md`](DEPLOY.md).
 - **Google Apps Script:** "Implementaties beheren → potlood → nieuwe versie", nooit "nieuwe implementatie". Na kolomwijzigingen `setupHeaders()` één keer uitvoeren.
