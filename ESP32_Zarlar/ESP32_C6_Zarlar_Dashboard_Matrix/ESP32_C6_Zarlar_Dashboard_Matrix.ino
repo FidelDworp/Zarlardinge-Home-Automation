@@ -1,5 +1,5 @@
 /* ============================================================
-   Zarlar Dashboard v6.5 (zonder Matter)
+   Zarlar Dashboard v6.6 (zonder Matter)
    ESP32-C6 (32-pin 16MB) @ 192.168.0.60
    Filip Delannoy
 
@@ -11,7 +11,8 @@
 
    EERSTE GEBRUIK / FACTORY RESET:
      1. Upload sketch → verbindt automatisch met WiFi
-     2. Bij geen WiFi → AP "Zarlar-Setup" verschijnt
+     2. Geen SSID ingesteld → AP "Zarlar-Setup" verschijnt
+        (SSID wel ingesteld maar netwerk weg → zie WIFI-HERSTEL hieronder)
      3. Verbind met "Zarlar-Setup" → browser opent /settings automatisch
      4. Vul WiFi SSID + wachtwoord in, sla op → herstart
      5. Daarna: open http://192.168.0.60/settings voor controllers
@@ -19,7 +20,13 @@
    NETWERK:
      Fixed IP  : 192.168.0.60
      Toegang   : http://192.168.0.60/ (geen mDNS)
-     AP SSID   : Zarlar-Setup (bij geen WiFi)
+     AP SSID   : Zarlar-Setup (geen SSID, of fallback na 3 min zonder netwerk)
+
+   WIFI-HERSTEL (v6.6, bv. na stroompanne — router start trager dan ESP32):
+     - SSID ingesteld → nooit meer definitief AP. Elke 30 s nieuwe poging.
+     - Na 3 min zonder netwerk: fallback-AP Zarlar-Setup in AP_STA-modus;
+       STA blijft elke 60 s proberen. Verbonden → AP gaat vanzelf uit.
+     - Na 10 min zonder netwerk en niemand op de AP: ESP.restart().
 
    APPLE HOME:
      - Geen Matter meer op deze controller (v6.0). HOME/UIT in Apple Home loopt via
@@ -46,6 +53,11 @@
        /matrix_test of Serial commando 'matrix-test'. Pas MATRIX_FLIP_H
        aan als kolommen gespiegeld zijn.
 
+   23nov26        v6.6  WiFi-herstel na stroompanne: met opgeslagen SSID niet meer voorgoed in AP.
+                        wifiWatchdog() in loop(): nieuwe poging elke 30 s, fallback-AP (AP_STA)
+                        na 3 min, AP uit zodra verbonden, herstart na 10 min zonder netwerk en
+                        zonder AP-gebruiker. Pollen alleen bij WL_CONNECTED. Na herstel snel pollen.
+                        startAP(keepSta), stopFallbackAP(), applyWifiPowerSettings() nieuw.
    22nov26        v6.5  ROOM-rijen kolom 12 (LDR): ROOM v3.5.3 stuurt m nu als 100 = licht, 0 = donker
                         (was 100 = donker). De omrekening 100 − m valt weg. Photon-rijen ongewijzigd
                         (eigen renderer). ESP32-rooms met een ROOM-sketch ouder dan v3.5.3 tonen kolom 12
@@ -195,7 +207,7 @@
 // ⚠️ Verplicht voor ESP32-C6 (RISC-V) — vóór alle #include statements
 #define Serial Serial0
 
-#define DASH_VERSION "6.5"
+#define DASH_VERSION "6.6"
 
 #include <WiFi.h>
 #include <esp_wifi.h>
@@ -450,15 +462,38 @@ void saveNVS() {
 
 // ============================================================
 // WIFI VERBINDEN
+// v6.6: met opgeslagen SSID nooit meer definitief naar AP.
+//       Na een stroompanne start de router trager op dan de ESP32;
+//       wifiWatchdog() in loop() blijft proberen tot het netwerk terug is.
 // ============================================================
+#define WIFI_RETRY_MS        30000UL    // STA: nieuwe poging elke 30 s
+#define WIFI_RETRY_AP_MS     60000UL    // AP_STA: elke 60 s (stoort captive portal minder)
+#define WIFI_AP_AFTER_MS    180000UL    // na 3 min zonder WiFi: fallback-AP (AP_STA)
+#define WIFI_REBOOT_MS      600000UL    // na 10 min zonder WiFi en zonder AP-gebruiker: herstart
+
+unsigned long wifi_lost_since  = 0;     // 0 = verbonden
+unsigned long wifi_last_retry  = 0;
+
+void applyWifiPowerSettings() {
+  esp_wifi_set_ps(WIFI_PS_NONE);
+  wifi_config_t wifi_cfg;
+  esp_wifi_get_config(WIFI_IF_STA, &wifi_cfg);
+  wifi_cfg.sta.listen_interval = 1;
+  esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg);
+  esp_pm_config_t pm_cfg = { .max_freq_mhz=160, .min_freq_mhz=160, .light_sleep_enable=false };
+  esp_pm_configure(&pm_cfg);
+  esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
+}
+
 void connectWiFi() {
   if (wifi_ssid.length() == 0) {
     Serial.println("Geen WiFi geconfigureerd → AP mode");
-    startAP();
+    startAP(false);
     return;
   }
   Serial.print("WiFi verbinden met " + wifi_ssid);
   WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
   IPAddress ip(192,168,0,60), gw(192,168,0,1), sn(255,255,255,0), dns(8,8,8,8);
   WiFi.config(ip, gw, sn, gw, dns);
   WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
@@ -467,34 +502,86 @@ void connectWiFi() {
     delay(500); Serial.print("."); retries++;
   }
   Serial.println();
+  ap_mode = false;
   if (WiFi.status() == WL_CONNECTED) {
-    esp_wifi_set_ps(WIFI_PS_NONE);
-    wifi_config_t wifi_cfg;
-    esp_wifi_get_config(WIFI_IF_STA, &wifi_cfg);
-    wifi_cfg.sta.listen_interval = 1;
-    esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg);
-    esp_pm_config_t pm_cfg = { .max_freq_mhz=160, .min_freq_mhz=160, .light_sleep_enable=false };
-    esp_pm_configure(&pm_cfg);
-    esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
+    applyWifiPowerSettings();
     Serial.println("✓ WiFi verbonden: " + WiFi.localIP().toString());
     Serial.printf("  RSSI: %d dBm\n", WiFi.RSSI());
-    ap_mode = false;
+    wifi_lost_since = 0;
   } else {
-    Serial.println("✗ WiFi mislukt → AP mode");
-    startAP();
+    Serial.println("✗ WiFi nog niet bereikbaar → blijf proberen (fallback-AP na 3 min)");
+    wifi_lost_since = millis();
+    wifi_last_retry = millis();
   }
 }
 
 // ============================================================
 // AP MODE + CAPTIVE PORTAL
+// keepSta = false : pure AP (nog geen SSID ingesteld)
+// keepSta = true  : fallback AP_STA — STA blijft op de achtergrond proberen
 // ============================================================
-void startAP() {
-  WiFi.mode(WIFI_AP);
+void startAP(bool keepSta) {
+  WiFi.mode(keepSta ? WIFI_AP_STA : WIFI_AP);
   WiFi.softAP("Zarlar-Setup");
   IPAddress ap_ip = WiFi.softAPIP();
   dnsServer.start(53, "*", ap_ip);
   ap_mode = true;
-  Serial.println("AP mode: SSID=Zarlar-Setup  IP=" + ap_ip.toString());
+  Serial.printf("AP mode (%s): SSID=Zarlar-Setup  IP=%s\n",
+                keepSta ? "AP_STA fallback" : "AP", ap_ip.toString().c_str());
+}
+
+void stopFallbackAP() {
+  dnsServer.stop();
+  WiFi.softAPdisconnect(true);   // AP uit, STA blijft
+  ap_mode = false;
+  Serial.println("[WiFi] Fallback-AP uit");
+}
+
+// ============================================================
+// WIFI WATCHDOG — v6.6, elke loop() aangeroepen
+// ============================================================
+void wifiWatchdog() {
+  if (wifi_ssid.length() == 0) return;          // pure AP-modus: niets te bewaken
+  unsigned long now = millis();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    if (wifi_lost_since != 0) {
+      Serial.printf("[WiFi] ✓ Terug verbonden na %lu s: %s\n",
+                    (now - wifi_lost_since) / 1000, WiFi.localIP().toString().c_str());
+      wifi_lost_since = 0;
+      if (ap_mode) stopFallbackAP();
+      applyWifiPowerSettings();
+      last_poll_cycle = now - (unsigned long)(poll_minutes * 60000UL) + 10000UL;  // snel pollen
+    }
+    return;
+  }
+
+  // ── Niet verbonden ──
+  if (wifi_lost_since == 0) {
+    wifi_lost_since = now;
+    wifi_last_retry = now;
+    Serial.println("[WiFi] ✗ Verbinding kwijt — blijf proberen");
+  }
+  unsigned long lost = now - wifi_lost_since;
+
+  if (!ap_mode && lost >= WIFI_AP_AFTER_MS) {
+    Serial.println("[WiFi] 3 min geen netwerk → fallback-AP Zarlar-Setup (STA blijft proberen)");
+    startAP(true);
+  }
+
+  unsigned long retry_ms = ap_mode ? WIFI_RETRY_AP_MS : WIFI_RETRY_MS;
+  if (now - wifi_last_retry >= retry_ms) {
+    wifi_last_retry = now;
+    Serial.printf("[WiFi] Nieuwe poging (%lu s zonder netwerk)\n", lost / 1000);
+    WiFi.disconnect(false, false);
+    WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
+  }
+
+  if (lost >= WIFI_REBOOT_MS && WiFi.softAPgetStationNum() == 0) {
+    Serial.println("[WiFi] 10 min geen netwerk en niemand op de AP → herstart");
+    delay(200);
+    ESP.restart();
+  }
 }
 
 // ============================================================
@@ -654,7 +741,7 @@ void logControllerToSheets(int i) {
 // POLL CYCLUS — gespreid 2s per controller
 // ============================================================
 void handlePolling() {
-  if (ap_mode) return;
+  if (ap_mode || WiFi.status() != WL_CONNECTED) return;   // v6.6
   unsigned long now = millis();
   if (!polling_active) {
     if (now - last_poll_cycle >= (unsigned long)poll_minutes * 60000UL) {
@@ -1849,7 +1936,7 @@ String getSettingsPage() {
        "<tr><td>IP adres</td><td>";
   h += ap_mode ? "AP " + WiFi.softAPIP().toString() : WiFi.localIP().toString();
   h += "</td></tr><tr><td>Mode</td><td>";
-  h += ap_mode ? "AP (Zarlar-Setup)" : "STA";
+  h += ap_mode ? (wifi_ssid.length() ? "AP_STA fallback (Zarlar-Setup)" : "AP (Zarlar-Setup)") : "STA";
   h += "</td></tr><tr><td>WiFi RSSI</td><td>";
   h += String(WiFi.RSSI()) + " dBm";
   h += "</td></tr><tr><td>Uptime</td><td>";
@@ -2065,6 +2152,7 @@ void setup() {
 // LOOP
 // ============================================================
 void loop() {
+  wifiWatchdog();                                   // v6.6
   if (ap_mode) dnsServer.processNextRequest();
   server.handleClient();
   handlePolling();
