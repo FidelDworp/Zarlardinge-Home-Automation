@@ -1015,6 +1015,14 @@ function tab(id, btn) {
 }
 
 // ═══ KLEURHELPERS ═════════════════════════════════════════════════════════════
+// ROOM v3.5+: kamertemperatuur zoals de room zelf: DS18B20 (f), anders DHT22 (e), anders null
+function roomTemp(r) {
+  for (const k of ['f', 'e']) {
+    const v = r ? r[k] : null;
+    if (v !== null && v !== undefined && v !== '' && !isNaN(parseFloat(v))) return parseFloat(v);
+  }
+  return null;
+}
 function tc(t) {
   if (t < 18) return '#4da6ff';
   if (t < 22) return '#00d18c';
@@ -1157,10 +1165,10 @@ function bouwSyn(s) {
     {
       naam: 'Eetplaats', link: '/room.html?id=80&name=Eetplaats', kl: room.online ? 'ok' : 'err',
       icon: () => {
-        const t = parseFloat(room.f)||parseFloat(room.e)||20;
-        return drawhome(40, tc(t));
+        const t = roomTemp(room);   // ROOM v3.5+: DS18B20, anders DHT22, anders null
+        return drawhome(40, t === null ? '#6b7f8e' : tc(t));
       },
-      val: () => room.online ? `${(parseFloat(room.f)||0).toFixed(1)}°C` : '—',
+      val: () => room.online ? (roomTemp(room) === null ? '–' : `${roomTemp(room).toFixed(1)}°C`) : '—',
       sub: () => room.online ? `${parseInt(room.h)||0}% vocht` : 'offline'
     },
     {
@@ -1223,7 +1231,8 @@ function bouwSyn(s) {
 
   // Quick stats
   const hvacKw = (parseFloat(hvac.w)||0).toFixed(1);
-  const roomT  = (parseFloat(room.f)||0).toFixed(1);
+  const roomTv = roomTemp(room);   // ROOM v3.5+: null als er geen geldige temperatuur is
+  const roomT  = roomTv === null ? '–' : roomTv.toFixed(1);
   const ecoQ   = (parseFloat(eco.i)||0).toFixed(1);
   const vent   = parseInt(hvac.x)||0;
 
@@ -1234,9 +1243,9 @@ function bouwSyn(s) {
       <div class="qp-val" style="color:${parseFloat(hvac.w)>0?'#ff8030':'var(--muted)'}">${hvac.online?hvacKw+' kW':'—'}</div></div>
     </div>
     <div class="qp">
-      ${drawhome(22, tc(parseFloat(room.f)||20))}
+      ${drawhome(22, roomTv === null ? '#6b7f8e' : tc(roomTv))}
       <div><div class="qp-lbl">Eetplaats temp</div>
-      <div class="qp-val" style="color:${tc(parseFloat(room.f)||20)}">${room.online?roomT+'°C':'—'}</div></div>
+      <div class="qp-val" style="color:${roomTv === null ? 'var(--muted)' : tc(roomTv)}">${room.online?(roomTv === null ? '–' : roomT+'°C'):'—'}</div></div>
     </div>
     <div class="qp">
       ${drawelectricenergy(22,'#ffb030','#cc8800')}
