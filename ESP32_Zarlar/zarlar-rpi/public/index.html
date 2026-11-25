@@ -1047,7 +1047,7 @@ function rssiKleur(r) {
 
 // ═══ SYNOPTISCH ═══════════════════════════════════════════════════════════════
 function bouwSyn(s) {
-  const hvac = s.hvac || {}, eco = s.eco || {}, room = s.room || {}, senrg = s.senrg || {};
+  const hvac = s.hvac || {}, eco = s.eco || {}, room = s.room80 || s.room || {}, senrg = s.senrg || {};
 
   // Injectie kleur helper voor S-ENERGY netto
   const nettoKleur = (w) => w > 50 ? '#00d18c' : w < -50 ? '#ff4555' : '#ffb030';
@@ -1272,7 +1272,7 @@ function bouwLichten(s) {
     `<button class="sbtn${i===0?' on':''}" onclick="kiesScene(this)">${sc}</button>`).join('');
 
   // Pixels
-  const room = s.room || {};
+  const room = s.room80 || s.room || {};
   const kamers = document.getElementById('licht-kamers');
   if (!room.online) { kamers.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px">Eetplaats offline</div>'; return; }
 
@@ -1335,7 +1335,7 @@ function bouwHVAC(s) {
 
 // ═══ SECURITY ═════════════════════════════════════════════════════════════════
 function bouwSec(s) {
-  const room = s.room || {};
+  const room = s.room80 || s.room || {};
   const grid = document.getElementById('s-grid');
   if (!room.online) { grid.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px;font-size:13px">Room offline</div>'; return; }
 
