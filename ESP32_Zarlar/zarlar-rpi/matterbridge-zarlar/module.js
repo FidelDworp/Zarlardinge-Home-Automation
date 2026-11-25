@@ -1,5 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// matterbridge-zarlar v0.8 — Zarlar Photon-knoppen, rooms, HVAC en ECO-boiler in Apple Home
+// matterbridge-zarlar v0.8.1 — Zarlar Photon-knoppen, rooms, HVAC en ECO-boiler in Apple Home
+// v0.8.1 (25/11/2026): kamertemperatuur valt ook terug op de SCD41 (al) als DS18B20 en DHT22 geen meting hebben (ROOM v3.7.1)
 // Filip Delannoy — Portal Plan §16.9 (F4a)
 //
 // Apple Home ──► Matterbridge (deze plugin) ──► server.js (RPi) ──► Particle ──► Photon
@@ -475,8 +476,9 @@ export class ZarlarPlatform extends MatterbridgeDynamicPlatform {
       const zet = async (dev, cl, attr, v) => {
         if (dev && v !== undefined && v !== null && dev.getAttribute(cl, attr) !== v) await dev.setAttribute(cl, attr, v, this.log);
       };
-      const ds  = Number(j.f), dht = Number(j.e);
-      const temp = ds > 0 ? ds : dht > 0 ? dht : null;
+      // ROOM v3.7.1: zelfde terugval als de room: DS18B20 (f) → DHT22 (e) → SCD41 (al); null = geen meting
+      const ds = Number(j.f), dht = Number(j.e), scd = Number(j.al);
+      const temp = ds > 0 ? ds : dht > 0 ? dht : scd > 0 ? scd : null;
       if (temp !== null) await zet(t.thermo, Thermostat, 'localTemperature', Math.round(temp * 100));
       if (Number(j.c) > 0) await zet(t.thermo, Thermostat, 'occupiedHeatingSetpoint', Math.round(Number(j.c) * 100));
       await zet(t.thermo, Thermostat, 'systemMode', Number(j.v) ? Thermostat.SystemMode.Heat : Thermostat.SystemMode.Off);
