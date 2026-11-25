@@ -55,7 +55,7 @@ Na een stroompanne start de ESP32 in ±1 s, de router pas na 1–3 min. HVAC, EC
 | ECO-boiler | 192.168.0.71 | `ESP32C6_ECO-boiler` | v2.1 (idem) |
 | S-OUTSIDE | .72 (gereserveerd) | — | alleen een idee |
 | Smart Energy | 192.168.0.73 · `smart-energy.local` | `ESP32C6_Smart-Energy` | v1.31 (idem + AP `ENERGY-Setup`) |
-| ROOM (B&B … Zitplaats) | .75–.81 (room80 = Eetplaats) | `ESP32C6_ROOMS` | v3.6 |
+| ROOM (B&B … Zitplaats) | .75–.81 (room80 = Eetplaats) | `ESP32C6_ROOMS` | v3.6.2 |
 | ACCESS1/2/3 | .82/.83/.84 | `ESP32C6_ACCESS` | v0.3.2 (wifi-herstel); Photon R8-ACCESS nog actief |
 | Photon-rooms | Particle Cloud + Cloudflare Worker | `PHOTON_ROOMS` | nog in productie, behalve de B&B |
 
