@@ -1265,7 +1265,20 @@ function bouwSyn(s) {
 // ═══ LICHTEN ══════════════════════════════════════════════════════════════════
 const SCENES = ['☀️ Alles','🌙 Nacht','🎬 Film','🍽️ Diner','🚶 Welkom','📚 Lezen'];
 
+// Namen van de pixels uit /capabilities (ROOM v3.11: strooknaam achteraan, zoals in t). Eén keer per paginabezoek.
+let lichtNamen = null, lichtNamenBezig = false, lichtS = null;
+function haalLichtNamen() {
+  if (lichtNamenBezig) return;
+  lichtNamenBezig = true;
+  fetch('/api/capabilities/room80?refresh=1').then(r => r.ok ? r.json() : null).then(d => {
+    if (d && Array.isArray(d.pixels)) { lichtNamen = d.pixels; if (lichtS) bouwLichten(lichtS); }
+  }).catch(() => {});
+}
+const escH = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
 function bouwLichten(s) {
+  lichtS = s;
+  if (!lichtNamen) haalLichtNamen();
   // Scenes
   const sr = document.getElementById('scene-row');
   sr.innerHTML = SCENES.map((sc,i) =>
@@ -1286,7 +1299,7 @@ function bouwLichten(s) {
       <div class="pcircle${aan?' aan':''}" style="${aan?'background:'+klr+';box-shadow:0 0 12px '+klr+'66':''}">
         ${drawlighting(24, aan?'rgba(255,255,255,0.9)':'#2a3a4a', aan?'rgba(255,255,255,0.6)':'#1a2a3a')}
       </div>
-      <div class="plbl">Pixel ${i}</div>
+      <div class="plbl">${escH((lichtNamen && lichtNamen[i]) || ('Pixel ' + i))}</div>
     </div>`;
   }
   kamers.innerHTML = `<div class="kg"><div class="kg-titel">Eetplaats</div><div class="pgrid">${pixels}</div></div>`;
